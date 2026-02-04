@@ -10,7 +10,6 @@ function Map() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [searched, setSearched] = useState(false);
 
   useEffect(() => {
     // Only get user location, don't search
@@ -41,7 +40,6 @@ function Map() {
       setError(null);
       const results = await searchRestaurants(center.lat, center.lng);
       setRestaurants(results);
-      setSearched(true);
     } catch (err) {
       console.error('Error:', err);
       setError(err.message);
