@@ -12,42 +12,42 @@ function Map() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const fetchRestaurants = async (location) => {
+      try {
+        setLoading(true);
+        const results = await searchRestaurants(location.lat, location.lng);
+        setRestaurants(results);
+      } catch (err) {
+        console.error('Error:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const getLocationAndSearch = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const loc = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            };
+            setCenter(loc);
+            fetchRestaurants(loc);
+          },
+          (err) => {
+            console.warn('Location error:', err);
+            fetchRestaurants({ lat: 40.7128, lng: -74.0060 });
+          }
+        );
+      } else {
+        fetchRestaurants({ lat: 40.7128, lng: -74.0060 });
+      }
+    };
+
     getLocationAndSearch();
   }, []);
-
-  const getLocationAndSearch = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const loc = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-          setCenter(loc);
-          fetchRestaurants(loc);
-        },
-        (err) => {
-          console.warn('Location error:', err);
-          fetchRestaurants({ lat: 40.7128, lng: -74.0060 });
-        }
-      );
-    } else {
-      fetchRestaurants({ lat: 40.7128, lng: -74.0060 });
-    }
-  };
-
-  const fetchRestaurants = async (location) => {
-    try {
-      setLoading(true);
-      const results = await searchRestaurants(location.lat, location.lng);
-      setRestaurants(results);
-    } catch (err) {
-      console.error('Error:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (!API_KEY) {
     return <div className="error-message">❌ API key not configured</div>;
