@@ -4,6 +4,7 @@ import '../styles/RestaurantDetailSheet.css';
 function RestaurantDetailSheet({ restaurant, onClose }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [photoError, setPhotoError] = useState(false);
   const startYRef = useRef(0);
   const sheetRef = useRef(null);
 
@@ -36,10 +37,10 @@ function RestaurantDetailSheet({ restaurant, onClose }) {
     setIsDragging(false);
   };
 
-  // Generate mock photo URL (in real app, use Google Places photo API)
-  const photoUrl = restaurant.photos?.[0]
-    ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${restaurant.photos[0]}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
-    : 'https://via.placeholder.com/84x84?text=No+Photo';
+  // Generate photo URL using backend proxy
+  const photoUrl = !photoError && restaurant.photo
+    ? `/api/photo?reference=${encodeURIComponent(restaurant.photo)}&maxWidth=400`
+    : 'https://via.placeholder.com/400x300?text=No+Photo+Available';
 
   return (
     <div className="restaurant-detail-sheet">
@@ -66,6 +67,8 @@ function RestaurantDetailSheet({ restaurant, onClose }) {
               src={url}
               alt={`${restaurant.name} ${idx + 1}`}
               className="restaurant-photo"
+              onError={() => setPhotoError(true)}
+              onLoad={() => setPhotoError(false)}
             />
           ))}
           <div className="see-all">See all</div>
