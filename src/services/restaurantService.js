@@ -32,17 +32,3 @@ export const searchRestaurants = async (lat, lng, radius = 5000) => {
     throw error;
   }
 };
-
-/**
- * Get photo URL from photo reference
- * @param {string} photoReference - Photo reference from Google Places
- * @param {number} maxWidth - Maximum width (default 400)
- * @returns {string} Photo URL
- */
-export const getPhotoUrl = (photoReference, maxWidth = 400) => {
-  if (!API_KEY || !photoReference) {
-    return null;
-  }
-
-  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxWidth}&photo_reference=${photoReference}&key=${API_KEY}`;
-};
