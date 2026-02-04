@@ -1,57 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleMap, LoadScript, MarkerF, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
 import { searchRestaurants } from '../services/restaurantService';
 import '../styles/Map.css';
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
-const DEFAULT_CENTER = { lat: 40.7128, lng: -74.0060 }; // New York fallback
-
-const mapContainerStyle = {
-  width: '100%',
-  height: '100%',
-};
-
 function Map() {
-  const [center, setCenter] = useState(DEFAULT_CENTER);
+  const [center, setCenter] = useState({ lat: 40.7128, lng: -74.0060 });
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
 
   useEffect(() => {
-    // Get user's current location
+    getLocationAndSearch();
+  }, []);
+
+  const getLocationAndSearch = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          const userLocation = {
+          const loc = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
-          setCenter(userLocation);
-          fetchRestaurants(userLocation);
+          setCenter(loc);
+          fetchRestaurants(loc);
         },
-        (error) => {
-          console.warn('Geolocation error:', error);
-          // Fall back to New York if permission denied
-          fetchRestaurants(DEFAULT_CENTER);
+        (err) => {
+          console.warn('Location error:', err);
+          fetchRestaurants({ lat: 40.7128, lng: -74.0060 });
         }
       );
     } else {
-      // Geolocation not supported
-      fetchRestaurants(DEFAULT_CENTER);
+      fetchRestaurants({ lat: 40.7128, lng: -74.0060 });
     }
-  }, []);
+  };
 
   const fetchRestaurants = async (location) => {
     try {
       setLoading(true);
-      setError(null);
       const results = await searchRestaurants(location.lat, location.lng);
       setRestaurants(results);
-      console.log(`Found ${results.length} restaurants at ${location.lat}, ${location.lng}`);
     } catch (err) {
-      console.error('Failed to fetch restaurants:', err);
+      console.error('Error:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -59,32 +50,22 @@ function Map() {
   };
 
   if (!API_KEY) {
-    return (
-      <div className="error-message">
-        ❌ Error: Google Maps API key not configured
-      </div>
-    );
+    return <div className="error-message">❌ API key not configured</div>;
   }
 
   if (error) {
-    return (
-      <div className="error-message">
-        ❌ Error: {error}
-      </div>
-    );
+    return <div className="error-message">❌ {error}</div>;
   }
+
+  const mapStyle = { width: '100%', height: '100%' };
 
   return (
     <div className="map-page">
-      {loading && <div className="loading-overlay">Searching restaurants...</div>}
-      
+      {loading && <div className="loading-overlay">Loading restaurants...</div>}
+
       <LoadScript googleMapsApiKey={API_KEY}>
-        <GoogleMap
-          mapContainerStyle={mapContainerStyle}
-          center={center}
-          zoom={13}
-        >
-          {/* Current location marker */}
+        <GoogleMap mapContainerStyle={mapStyle} center={center} zoom={13}>
+          {/* Your location (blue) */}
           <MarkerF
             position={center}
             title="Your Location"
@@ -98,19 +79,18 @@ function Map() {
             }}
           />
 
-          {/* Numbered markers for each restaurant */}
-          {restaurants.map((restaurant) => (
+          {/* Restaurant markers (red with numbers) */}
+          {restaurants.map((r) => (
             <MarkerF
-              key={restaurant.id}
-              position={{ lat: restaurant.lat, lng: restaurant.lng }}
-              title={restaurant.name}
+              key={r.id}
+              position={{ lat: r.lat, lng: r.lng }}
+              title={r.name}
               label={{
-                text: String(restaurant.number),
+                text: String(r.number),
                 color: 'white',
                 fontSize: '14px',
                 fontWeight: 'bold',
               }}
-              onClick={() => setSelectedRestaurant(restaurant)}
               icon={{
                 path: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z',
                 fillColor: '#E53935',
@@ -119,17 +99,7 @@ function Map() {
                 strokeWeight: 2,
                 scale: 1.5,
               }}
-            >
-              {selectedRestaurant?.id === restaurant.id && (
-                <InfoWindow onCloseClick={() => setSelectedRestaurant(null)}>
-                  <div className="info-window">
-                    <h3>{restaurant.name}</h3>
-                    <p>⭐ {restaurant.rating} ({restaurant.reviews} reviews)</p>
-                    <p>{restaurant.address}</p>
-                  </div>
-                </InfoWindow>
-              )}
-            </MarkerF>
+            />
           ))}
         </GoogleMap>
       </LoadScript>
