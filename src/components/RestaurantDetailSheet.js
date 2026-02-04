@@ -1,56 +1,30 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../styles/RestaurantDetailSheet.css';
 
 function RestaurantDetailSheet({ restaurant, onClose }) {
-  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-
   if (!restaurant) return null;
 
-  const handlePrevPhoto = () => {
-    setCurrentPhotoIndex((prev) =>
-      prev === 0 ? (restaurant.photos?.length || 1) - 1 : prev - 1
-    );
-  };
-
-  const handleNextPhoto = () => {
-    setCurrentPhotoIndex((prev) =>
-      prev === (restaurant.photos?.length || 1) - 1 ? 0 : prev + 1
-    );
-  };
-
-  // Generate mock photo URLs (in real app, use Google Places photo API)
-  const photoUrl = restaurant.photos?.[currentPhotoIndex]
-    ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${restaurant.photos[currentPhotoIndex]}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
-    : 'https://via.placeholder.com/400x300?text=No+Photo';
+  // Generate mock photo URL (in real app, use Google Places photo API)
+  const photoUrl = restaurant.photos?.[0]
+    ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photo_reference=${restaurant.photos[0]}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`
+    : 'https://via.placeholder.com/84x84?text=No+Photo';
 
   return (
     <div className="restaurant-detail-sheet">
       <div className="sheet-overlay" onClick={onClose} />
       
       <div className="sheet-content">
-        {/* Photo carousel */}
+        {/* Photo carousel - horizontal thumbnails */}
         <div className="photo-carousel">
-          <img src={photoUrl} alt={restaurant.name} className="restaurant-photo" />
-          
-          {(restaurant.photos?.length || 0) > 1 && (
-            <>
-              <button className="photo-nav prev" onClick={handlePrevPhoto}>
-                ←
-              </button>
-              <button className="photo-nav next" onClick={handleNextPhoto}>
-                →
-              </button>
-              <div className="photo-counter">
-                {currentPhotoIndex + 1} / {restaurant.photos?.length || 1}
-              </div>
-            </>
-          )}
-          
-          {(restaurant.types || []).slice(0, 3).map((type, idx) => (
-            <span key={idx} className="photo-tag">
-              {type.replace(/_/g, ' ')}
-            </span>
+          {[photoUrl, photoUrl, photoUrl].map((url, idx) => (
+            <img
+              key={idx}
+              src={url}
+              alt={`${restaurant.name} ${idx + 1}`}
+              className="restaurant-photo"
+            />
           ))}
+          <div className="see-all">See all</div>
         </div>
 
         {/* Restaurant details */}
