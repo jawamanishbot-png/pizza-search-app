@@ -133,7 +133,7 @@ function Map() {
                 label={{
                   text: String(r.number),
                   color: 'white',
-                  fontSize: '14px',
+                  fontSize: 16,
                   fontWeight: 'bold',
                 }}
                 icon={{
