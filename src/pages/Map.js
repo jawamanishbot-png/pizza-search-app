@@ -14,6 +14,7 @@ function Map() {
   const [error, setError] = useState(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [showCarousel, setShowCarousel] = useState(false);
+  const [focusedRestaurant, setFocusedRestaurant] = useState(null);
 
   useEffect(() => {
     // Only get user location, don't search
@@ -46,6 +47,10 @@ function Map() {
       setRestaurants(results);
       setShowCarousel(true); // Show carousel with cards
       setSelectedRestaurant(null);
+      // Set first restaurant as focused
+      if (results.length > 0) {
+        setFocusedRestaurant(results[0]);
+      }
     } catch (err) {
       console.error('Error:', err);
       setError(err.message);
@@ -92,31 +97,38 @@ function Map() {
           />
 
           {/* Restaurant markers (red with numbers) */}
-          {restaurants.map((r) => (
-            <MarkerF
-              key={r.id}
-              position={{ lat: r.lat, lng: r.lng }}
-              title={r.name}
-              label={{
-                text: String(r.number),
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: 'bold',
-              }}
-              icon={{
-                path: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z',
-                fillColor: '#E53935',
-                fillOpacity: 1,
-                strokeColor: '#fff',
-                strokeWeight: 2,
-                scale: 1.5,
-              }}
-              onClick={() => {
-                setSelectedRestaurant(r);
-                setShowCarousel(true);
-              }}
-            />
-          ))}
+          {restaurants.map((r) => {
+            const isFocused = focusedRestaurant?.id === r.id;
+            const markerColor = isFocused ? '#667eea' : '#E53935'; // Blue for focused, red for others
+            const markerScale = isFocused ? 1.8 : 1.5; // Larger when focused
+
+            return (
+              <MarkerF
+                key={r.id}
+                position={{ lat: r.lat, lng: r.lng }}
+                title={r.name}
+                label={{
+                  text: String(r.number),
+                  color: 'white',
+                  fontSize: '14px',
+                  fontWeight: 'bold',
+                }}
+                icon={{
+                  path: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z',
+                  fillColor: markerColor,
+                  fillOpacity: 1,
+                  strokeColor: '#fff',
+                  strokeWeight: isFocused ? 3 : 2,
+                  scale: markerScale,
+                }}
+                onClick={() => {
+                  setSelectedRestaurant(r);
+                  setFocusedRestaurant(r);
+                  setShowCarousel(true);
+                }}
+              />
+            );
+          })}
         </GoogleMap>
       </LoadScript>
 
@@ -126,6 +138,7 @@ function Map() {
           restaurants={restaurants}
           onCardClick={setSelectedRestaurant}
           onDismiss={() => setShowCarousel(false)}
+          onFocusedCardChange={setFocusedRestaurant}
         />
       )}
 

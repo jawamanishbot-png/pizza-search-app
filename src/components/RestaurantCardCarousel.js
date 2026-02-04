@@ -1,16 +1,32 @@
 import React, { useRef, useState } from 'react';
 import '../styles/RestaurantCardCarousel.css';
 
-function RestaurantCardCarousel({ restaurants, onCardClick, onDismiss }) {
+function RestaurantCardCarousel({ restaurants, onCardClick, onDismiss, onFocusedCardChange }) {
   const scrollContainerRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [focusedCardId, setFocusedCardId] = useState(restaurants[0]?.id);
 
   const checkScroll = () => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
       setCanScrollLeft(scrollLeft > 0);
       setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+
+      // Determine which card is in focus (center of visible area)
+      const cardWidth = 280;
+      const gap = 12;
+      const cardWithGap = cardWidth + gap;
+      const centerPosition = scrollLeft + clientWidth / 2;
+      const focusedIndex = Math.floor((centerPosition - cardWithGap / 2) / cardWithGap);
+      
+      if (focusedIndex >= 0 && focusedIndex < restaurants.length) {
+        const focusedId = restaurants[focusedIndex].id;
+        setFocusedCardId(focusedId);
+        if (onFocusedCardChange) {
+          onFocusedCardChange(restaurants[focusedIndex]);
+        }
+      }
     }
   };
 
