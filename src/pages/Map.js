@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
-import Header from '../components/Header';
-import RestaurantCard from '../components/RestaurantCard';
-import FilterBar from '../components/FilterBar';
-import { createNumberedMarkerIcon, createHighlightedMarkerIcon } from '../components/NumberedMarker';
-import { searchRestaurants } from '../utils/placesService';
+import React, { useState, useEffect } from 'react';
+import { GoogleMap, LoadScript, MarkerF, InfoWindowF } from '@react-google-maps/api';
+import { searchRestaurants } from '../services/restaurantService';
 import '../styles/Map.css';
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-const DEFAULT_CENTER = { lat: 40.7128, lng: -74.0060 }; // New York
+
+const DEFAULT_CENTER = { lat: 40.7128, lng: -74.0060 }; // New York fallback
 
 const mapContainerStyle = {
   width: '100%',
@@ -16,207 +13,113 @@ const mapContainerStyle = {
 };
 
 function Map() {
-  // State management
   const [center, setCenter] = useState(DEFAULT_CENTER);
   const [restaurants, setRestaurants] = useState([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [hasMapMoved, setHasMapMoved] = useState(false);
-  const mapRef = useRef(null);
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
 
-  // Filter state
-  const [filters, setFilters] = useState({
-    openNow: false,
-    priceLevel: false,
-    takeout: false,
-    sortBy: null,
-  });
-
-  // Initial load - fetch restaurants for default location
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    const fetchInitialRestaurants = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const results = await searchRestaurants(DEFAULT_CENTER, 5000, {});
-        setRestaurants(results);
-        setSelectedRestaurant(null);
-      } catch (err) {
-        console.error('Error fetching restaurants:', err);
-        setError('Failed to load restaurants. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (API_KEY) {
-      fetchInitialRestaurants();
+    // Get user's current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+          setCenter(userLocation);
+          fetchRestaurants(userLocation);
+        },
+        (error) => {
+          console.warn('Geolocation error:', error);
+          // Fall back to New York if permission denied
+          fetchRestaurants(DEFAULT_CENTER);
+        }
+      );
+    } else {
+      // Geolocation not supported
+      fetchRestaurants(DEFAULT_CENTER);
     }
   }, []);
 
-  // Apply filters and sorting
-  const getFilteredRestaurants = () => {
-    let filtered = [...restaurants];
-
-    if (filters.priceLevel) {
-      filtered = filtered.filter((r) => r.price_level && r.price_level <= 2);
-    }
-
-    if (filters.sortBy === 'rating') {
-      filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    }
-
-    return filtered;
-  };
-
-  const filteredRestaurants = getFilteredRestaurants();
-
-  const handleMapDrag = () => {
-    setHasMapMoved(true);
-  };
-
-  const handleRedoSearch = async () => {
-    setLoading(true);
-    setError(null);
-    setHasMapMoved(false);
-
+  const fetchRestaurants = async (location) => {
     try {
-      const currentCenter = mapRef.current?.getCenter();
-      if (currentCenter) {
-        const newCenter = {
-          lat: currentCenter.lat(),
-          lng: currentCenter.lng(),
-        };
-        const results = await searchRestaurants(newCenter, 5000, filters);
-        setRestaurants(results);
-        setSelectedRestaurant(null);
-        setCenter(newCenter);
-      }
+      setLoading(true);
+      setError(null);
+      const results = await searchRestaurants(location.lat, location.lng);
+      setRestaurants(results);
+      console.log(`Found ${results.length} restaurants at ${location.lat}, ${location.lng}`);
     } catch (err) {
-      console.error('Error redoing search:', err);
-      setError('Failed to search in this area.');
+      console.error('Failed to fetch restaurants:', err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleMarkerClick = (restaurant) => {
-    setSelectedRestaurant(restaurant);
-  };
-
-  const handleFilterChange = (newFilters) => {
-    setFilters(newFilters);
-  };
-
-  const handleMenuClick = () => {
-    console.log('Menu clicked');
-  };
-
   if (!API_KEY) {
     return (
-      <div className="error-state">
-        <h2>❌ Configuration Error</h2>
-        <p>Google Maps API key not configured.</p>
-        <p>Please set REACT_APP_GOOGLE_MAPS_API_KEY in your .env file.</p>
+      <div className="error-message">
+        ❌ Error: Google Maps API key not configured
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-message">
+        ❌ Error: {error}
       </div>
     );
   }
 
   return (
-    <LoadScript
-      googleMapsApiKey={API_KEY}
-      libraries={['places', 'maps']}
-      onLoad={() => console.log('Google Maps loaded')}
-    >
-      <div className="map-page-container">
-        <Header onMenuClick={handleMenuClick} />
-
-        <div className="map-wrapper">
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            center={center}
-            zoom={13}
-            onLoad={(map) => {
-              mapRef.current = map;
-            }}
-            onDragEnd={handleMapDrag}
-            options={{
-              gestureHandling: 'greedy',
-              controlSize: 32,
-            }}
-          >
-            {filteredRestaurants.map((restaurant, index) => {
-              const isSelected = selectedRestaurant?.place_id === restaurant.place_id;
-              const icon = isSelected
-                ? createHighlightedMarkerIcon(index + 1)
-                : createNumberedMarkerIcon(index + 1);
-
-              return (
-                <MarkerF
-                  key={restaurant.place_id}
-                  position={{
-                    lat: restaurant.geometry.location.lat(),
-                    lng: restaurant.geometry.location.lng(),
-                  }}
-                  icon={icon}
-                  onClick={() => handleMarkerClick(restaurant)}
-                  title={restaurant.name}
-                  animation={isSelected ? window.google.maps.Animation.BOUNCE : undefined}
-                />
-              );
-            })}
-          </GoogleMap>
-
-          {hasMapMoved && (
-            <button className="redo-search-btn" onClick={handleRedoSearch}>
-              🔄 Redo Search in This Area
-            </button>
-          )}
-
-          {loading && (
-            <div className="loading-overlay">
-              <div className="spinner"></div>
-              <p>Searching for restaurants...</p>
-            </div>
-          )}
-
-          {error && (
-            <div className="error-banner">
-              <span>⚠️ {error}</span>
-              <button onClick={() => setError(null)}>✕</button>
-            </div>
-          )}
-        </div>
-
-        {!loading && filteredRestaurants.length > 0 && (
-          <div className="restaurant-info">
-            Found {filteredRestaurants.length} restaurant{filteredRestaurants.length !== 1 ? 's' : ''}
-          </div>
-        )}
-
-        <FilterBar filters={filters} onFilterChange={handleFilterChange} />
-
-        {selectedRestaurant && (
-          <RestaurantCard
-            restaurant={selectedRestaurant}
-            markerNumber={
-              filteredRestaurants.findIndex((r) => r.place_id === selectedRestaurant.place_id) + 1
-            }
-            center={center}
-            onClose={() => setSelectedRestaurant(null)}
-          />
-        )}
-
-        {!loading && filteredRestaurants.length === 0 && (
-          <div className="empty-state">
-            <h3>🔍 No restaurants found</h3>
-            <p>Try adjusting filters or searching in a different area</p>
-          </div>
-        )}
-      </div>
-    </LoadScript>
+    <div className="map-page">
+      {loading && <div className="loading-overlay">Searching restaurants...</div>}
+      
+      <LoadScript googleMapsApiKey={API_KEY}>
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          center={center}
+          zoom={13}
+        >
+          {/* Numbered markers for each restaurant */}
+          {restaurants.map((restaurant) => (
+            <MarkerF
+              key={restaurant.id}
+              position={{ lat: restaurant.lat, lng: restaurant.lng }}
+              title={restaurant.name}
+              label={{
+                text: String(restaurant.number),
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: 'bold',
+              }}
+              onClick={() => setSelectedRestaurant(restaurant)}
+              icon={{
+                path: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z',
+                fillColor: '#E53935',
+                fillOpacity: 1,
+                strokeColor: '#fff',
+                strokeWeight: 2,
+                scale: 1.5,
+              }}
+            >
+              {selectedRestaurant?.id === restaurant.id && (
+                <InfoWindowF onCloseClick={() => setSelectedRestaurant(null)}>
+                  <div className="info-window">
+                    <h3>{restaurant.name}</h3>
+                    <p>⭐ {restaurant.rating} ({restaurant.reviews} reviews)</p>
+                    <p>{restaurant.address}</p>
+                  </div>
+                </InfoWindowF>
+              )}
+            </MarkerF>
+          ))}
+        </GoogleMap>
+      </LoadScript>
+    </div>
   );
 }
 
