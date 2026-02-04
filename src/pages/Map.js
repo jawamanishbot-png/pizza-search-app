@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
 import { searchRestaurants } from '../services/restaurantService';
 import RestaurantDetailSheet from '../components/RestaurantDetailSheet';
@@ -15,6 +15,7 @@ function Map() {
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [showCarousel, setShowCarousel] = useState(false);
   const [focusedRestaurant, setFocusedRestaurant] = useState(null);
+  const mapRef = useRef(null);
 
   useEffect(() => {
     // Only get user location, don't search
@@ -38,6 +39,21 @@ function Map() {
 
     getLocation();
   }, []);
+
+  // Auto-center map on focused restaurant as carousel scrolls
+  useEffect(() => {
+    if (focusedRestaurant && showCarousel && mapRef.current) {
+      const newCenter = {
+        lat: focusedRestaurant.lat,
+        lng: focusedRestaurant.lng,
+      };
+      setCenter(newCenter);
+      // Pan with animation
+      if (mapRef.current.panTo) {
+        mapRef.current.panTo(newCenter);
+      }
+    }
+  }, [focusedRestaurant, showCarousel]);
 
   const handleRedoSearch = async () => {
     try {
@@ -81,7 +97,14 @@ function Map() {
       )}
 
       <LoadScript googleMapsApiKey={API_KEY}>
-        <GoogleMap mapContainerStyle={mapStyle} center={center} zoom={13}>
+        <GoogleMap 
+          mapContainerStyle={mapStyle} 
+          center={center} 
+          zoom={13}
+          onLoad={(map) => {
+            mapRef.current = map;
+          }}
+        >
           {/* Your location (blue) */}
           <MarkerF
             position={center}
