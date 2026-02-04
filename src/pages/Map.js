@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
 import { searchRestaurants } from '../services/restaurantService';
-import RestaurantListSheet from '../components/RestaurantListSheet';
 import RestaurantDetailSheet from '../components/RestaurantDetailSheet';
 import RestaurantCardCarousel from '../components/RestaurantCardCarousel';
 import '../styles/Map.css';
@@ -14,7 +13,7 @@ function Map() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
-  const [showListView, setShowListView] = useState(false);
+  const [showCarousel, setShowCarousel] = useState(false);
 
   useEffect(() => {
     // Only get user location, don't search
@@ -45,7 +44,7 @@ function Map() {
       setError(null);
       const results = await searchRestaurants(center.lat, center.lng);
       setRestaurants(results);
-      setShowListView(true);
+      setShowCarousel(true); // Show carousel with cards
       setSelectedRestaurant(null);
     } catch (err) {
       console.error('Error:', err);
@@ -119,30 +118,16 @@ function Map() {
       </LoadScript>
 
       {/* Restaurant Card Carousel */}
-      {restaurants.length > 0 && !showListView && (
+      {restaurants.length > 0 && showCarousel && !selectedRestaurant && (
         <RestaurantCardCarousel
           restaurants={restaurants}
           onCardClick={setSelectedRestaurant}
-        />
-      )}
-
-      {/* Restaurant List Sheet (All Results) */}
-      {showListView && restaurants.length > 0 && (
-        <RestaurantListSheet
-          restaurants={restaurants}
-          onCardClick={(restaurant) => {
-            setSelectedRestaurant(restaurant);
-            setShowListView(false);
-          }}
-          onClose={() => {
-            setShowListView(false);
-            setSelectedRestaurant(null);
-          }}
+          onDismiss={() => setShowCarousel(false)}
         />
       )}
 
       {/* Restaurant Detail Sheet */}
-      {selectedRestaurant && !showListView && (
+      {selectedRestaurant && showCarousel && (
         <RestaurantDetailSheet
           restaurant={selectedRestaurant}
           onClose={() => setSelectedRestaurant(null)}

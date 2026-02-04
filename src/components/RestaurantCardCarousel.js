@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import '../styles/RestaurantCardCarousel.css';
 
-function RestaurantCardCarousel({ restaurants, onCardClick }) {
+function RestaurantCardCarousel({ restaurants, onCardClick, onDismiss }) {
   const scrollContainerRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -39,7 +39,11 @@ function RestaurantCardCarousel({ restaurants, onCardClick }) {
   }
 
   return (
-    <div className="restaurant-carousel-container">
+    <>
+      {/* Overlay to dismiss carousel when clicking outside */}
+      <div className="carousel-overlay" onClick={onDismiss} />
+      
+      <div className="restaurant-carousel-container">
       {canScrollLeft && (
         <button className="scroll-btn left" onClick={() => scroll('left')}>
           ◀
@@ -97,7 +101,8 @@ function RestaurantCardCarousel({ restaurants, onCardClick }) {
           ▶
         </button>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 
