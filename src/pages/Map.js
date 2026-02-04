@@ -84,6 +84,20 @@ function Map() {
           center={center}
           zoom={13}
         >
+          {/* Current location marker */}
+          <MarkerF
+            position={center}
+            title="Your Location"
+            icon={{
+              path: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z',
+              fillColor: '#4285F4',
+              fillOpacity: 1,
+              strokeColor: '#fff',
+              strokeWeight: 2,
+              scale: 1.2,
+            }}
+          />
+
           {/* Numbered markers for each restaurant */}
           {restaurants.map((restaurant) => (
             <MarkerF
