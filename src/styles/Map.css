@@ -109,25 +109,28 @@
 
 .redo-search-btn {
   position: absolute;
-  bottom: 150px;
+  top: 120px;
   left: 50%;
   transform: translateX(-50%);
-  background: #667eea;
-  color: white;
+  background: white;
+  color: #333;
   border: none;
   padding: 0.8rem 1.5rem;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
   z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .redo-search-btn:hover {
-  background: #5568d3;
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.6);
+  background: #f5f5f5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transform: translateX(-50%) translateY(-2px);
 }
 
