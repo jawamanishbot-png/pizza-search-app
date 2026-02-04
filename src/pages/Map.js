@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleMap, LoadScript, MarkerF, InfoWindowF } from '@react-google-maps/api';
+import { GoogleMap, LoadScript, MarkerF, InfoWindow } from '@react-google-maps/api';
 import { searchRestaurants } from '../services/restaurantService';
 import '../styles/Map.css';
 
@@ -121,13 +121,13 @@ function Map() {
               }}
             >
               {selectedRestaurant?.id === restaurant.id && (
-                <InfoWindowF onCloseClick={() => setSelectedRestaurant(null)}>
+                <InfoWindow onCloseClick={() => setSelectedRestaurant(null)}>
                   <div className="info-window">
                     <h3>{restaurant.name}</h3>
                     <p>⭐ {restaurant.rating} ({restaurant.reviews} reviews)</p>
                     <p>{restaurant.address}</p>
                   </div>
-                </InfoWindowF>
+                </InfoWindow>
               )}
             </MarkerF>
           ))}
