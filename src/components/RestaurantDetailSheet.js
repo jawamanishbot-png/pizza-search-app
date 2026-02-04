@@ -38,9 +38,12 @@ function RestaurantDetailSheet({ restaurant, onClose }) {
   };
 
   // Generate photo URL using backend proxy
+  // Use data URL for placeholder (doesn't need external request)
+  const placeholderDataUrl = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 300%22%3E%3Crect fill=%22%23e8e8e8%22 width=%22400%22 height=%22300%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22%23999%22%3ENo Photo%3C/text%3E%3C/svg%3E';
+  
   const photoUrl = !photoError && restaurant.photo
     ? `/api/photo?reference=${encodeURIComponent(restaurant.photo)}&maxWidth=400`
-    : 'https://via.placeholder.com/400x300?text=No+Photo+Available';
+    : placeholderDataUrl;
 
   return (
     <div className="restaurant-detail-sheet">
@@ -67,8 +70,14 @@ function RestaurantDetailSheet({ restaurant, onClose }) {
               src={url}
               alt={`${restaurant.name} ${idx + 1}`}
               className="restaurant-photo"
-              onError={() => setPhotoError(true)}
-              onLoad={() => setPhotoError(false)}
+              onError={(e) => {
+                console.error(`[RestaurantDetailSheet] Photo failed to load (${idx}):`, url);
+                setPhotoError(true);
+              }}
+              onLoad={() => {
+                console.log(`[RestaurantDetailSheet] Photo loaded successfully (${idx})`);
+                setPhotoError(false);
+              }}
             />
           ))}
           <div className="see-all">See all</div>

@@ -24,15 +24,23 @@ export default async function handler(req, res) {
   try {
     // Old Maps API photo endpoint
     const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxWidth}&photo_reference=${reference}&key=${API_KEY}`;
+    console.log(`[photo.js] Reference: ${reference.substring(0, 20)}...`);
     console.log('[photo.js] Fetching from Google Maps Photo API...');
     
-    const response = await fetch(photoUrl);
+    const response = await fetch(photoUrl, {
+      timeout: 10000,
+    });
 
     console.log('[photo.js] Google response status:', response.status);
+    console.log('[photo.js] Response headers:', {
+      contentType: response.headers.get('content-type'),
+      contentLength: response.headers.get('content-length'),
+    });
 
     if (!response.ok) {
-      console.log('[photo.js] ERROR: Google returned', response.status);
-      return res.status(response.status).json({ error: `Google API returned ${response.status}` });
+      const text = await response.text();
+      console.error('[photo.js] ERROR: Google returned', response.status, 'Body:', text.substring(0, 100));
+      return res.status(response.status).json({ error: `Google API returned ${response.status}`, body: text });
     }
 
     // Set appropriate headers for image
@@ -46,7 +54,7 @@ export default async function handler(req, res) {
     // Pipe the image response
     response.body.pipe(res);
   } catch (error) {
-    console.error('[photo.js] ERROR:', error.message);
-    res.status(500).json({ error: 'Failed to fetch photo', message: error.message });
+    console.error('[photo.js] CATCH ERROR:', error.message, error.stack);
+    return res.status(500).json({ error: 'Failed to fetch photo', message: error.message });
   }
 }
