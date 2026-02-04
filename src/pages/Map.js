@@ -111,7 +111,10 @@ function Map() {
                 strokeWeight: 2,
                 scale: 1.5,
               }}
-              onClick={() => setSelectedRestaurant(r)}
+              onClick={() => {
+                setSelectedRestaurant(r);
+                setShowCarousel(true);
+              }}
             />
           ))}
         </GoogleMap>
