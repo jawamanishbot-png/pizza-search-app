@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
 import { searchRestaurants } from '../services/restaurantService';
 import RestaurantDetailSheet from '../components/RestaurantDetailSheet';
+import RestaurantCardCarousel from '../components/RestaurantCardCarousel';
 import '../styles/Map.css';
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -112,6 +113,14 @@ function Map() {
           ))}
         </GoogleMap>
       </LoadScript>
+
+      {/* Restaurant Card Carousel */}
+      {restaurants.length > 0 && (
+        <RestaurantCardCarousel
+          restaurants={restaurants}
+          onCardClick={setSelectedRestaurant}
+        />
+      )}
 
       {/* Restaurant Detail Sheet */}
       {selectedRestaurant && (
