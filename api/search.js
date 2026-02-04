@@ -1,10 +1,12 @@
 export default async function handler(req, res) {
-  // Only allow POST for new API
-  if (req.method !== 'POST') {
+  // Accept both GET and POST
+  if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { lat, lng, radius = 5000 } = req.body;
+  // Get params from query or body
+  const params = req.method === 'GET' ? req.query : req.body;
+  const { lat, lng, radius = 5000 } = params;
 
   // Validate parameters
   if (!lat || !lng) {
@@ -17,62 +19,47 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = 'https://places.googleapis.com/v1/places:searchText';
+    // Using old Nearby Search API (still works, has photo support)
+    const url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json';
     
-    const payload = {
-      textQuery: 'pizza restaurant',
-      maxResultCount: 20,
-      locationBias: {
-        circle: {
-          center: {
-            latitude: parseFloat(lat),
-            longitude: parseFloat(lng),
-          },
-          radius: parseInt(radius),
-        },
-      },
-      languageCode: 'en-US',
-    };
-
-    console.log('[search.js] Calling Places API v1 searchText with payload:', JSON.stringify(payload, null, 2));
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': API_KEY,
-      },
-      body: JSON.stringify(payload),
+    const queryParams = new URLSearchParams({
+      location: `${lat},${lng}`,
+      radius: radius,
+      type: 'restaurant',
+      keyword: 'pizza',
+      key: API_KEY,
     });
 
+    console.log('[search.js] Calling Maps API Nearby Search...');
+
+    const response = await fetch(`${url}?${queryParams}`);
     const data = await response.json();
 
-    if (!response.ok) {
-      console.error('[search.js] API Error:', data);
-      return res.status(response.status).json({ error: `API Error: ${data.error?.message || 'Unknown error'}` });
+    if (!response.ok || data.status !== 'OK') {
+      console.error('[search.js] API Error:', data.status, data);
+      return res.status(400).json({ error: `API Error: ${data.status}` });
     }
 
     // Transform results
-    const restaurants = (data.places || []).map((place, index) => {
+    const restaurants = (data.results || []).map((place, index) => {
       const photos = place.photos || [];
-      const photoRef = photos[0]?.name; // New API uses 'name' instead of 'photo_reference'
+      const photoRef = photos[0]?.photo_reference;
       
-      console.log(`[search.js] Restaurant: ${place.displayName?.text}, Photos: ${photos.length}, Has photo: ${!!photoRef}`);
+      console.log(`[search.js] Restaurant: ${place.name}, Photos: ${photos.length}, Ref: ${photoRef ? 'YES' : 'NO'}`);
       
       return {
-        id: place.name, // Use the place ID from new API
-        placeId: place.name,
+        id: place.place_id,
+        placeId: place.place_id,
         number: index + 1,
-        name: place.displayName?.text || 'Unknown',
-        lat: place.location?.latitude || 0,
-        lng: place.location?.longitude || 0,
-        address: place.formattedAddress || 'Address not available',
+        name: place.name || 'Unknown',
+        lat: place.geometry?.location?.lat || 0,
+        lng: place.geometry?.location?.lng || 0,
+        address: place.vicinity || 'Address not available',
         rating: place.rating || 0,
-        reviews: place.userRatingCount || 0,
-        isOpen: place.businessStatus === 'OPERATIONAL',
-        photo: photoRef, // Photo URI for new API
+        reviews: place.user_ratings_total || 0,
+        isOpen: place.opening_hours?.open_now,
+        photo: photoRef, // Photo reference for old API
         photos: photos,
-        photoUrls: photos.map(p => p.name), // Store photo URIs
         types: place.types || [],
       };
     });

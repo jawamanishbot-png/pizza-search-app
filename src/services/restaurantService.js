@@ -12,17 +12,13 @@
  */
 export const searchRestaurants = async (lat, lng, radius = 5000) => {
   try {
-    const response = await fetch(`/api/search`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        lat,
-        lng,
-        radius,
-      }),
+    const params = new URLSearchParams({
+      lat,
+      lng,
+      radius,
     });
+
+    const response = await fetch(`/api/search?${params}`);
     
     if (!response.ok) {
       const error = await response.json();

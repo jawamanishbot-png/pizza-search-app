@@ -5,14 +5,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { uri, maxWidth = 400 } = req.query;
+  const { reference, maxWidth = 400 } = req.query;
 
-  console.log('[photo.js] Photo request - URI:', uri ? 'provided' : 'MISSING');
+  console.log('[photo.js] Photo request - Reference:', reference ? 'provided' : 'MISSING');
 
   // Validate parameters
-  if (!uri) {
-    console.log('[photo.js] ERROR: Missing photo URI');
-    return res.status(400).json({ error: 'Missing photo URI' });
+  if (!reference) {
+    console.log('[photo.js] ERROR: Missing photo reference');
+    return res.status(400).json({ error: 'Missing photo reference' });
   }
 
   const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -22,9 +22,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    // New Places API v1 uses media endpoint with photo URI
-    const photoUrl = `https://places.googleapis.com/v1/${decodeURIComponent(uri)}/media?key=${API_KEY}&max_height_px=${maxWidth}`;
-    console.log('[photo.js] Fetching from Google Places Media API...');
+    // Old Maps API photo endpoint
+    const photoUrl = `https://maps.googleapis.com/maps/api/place/photo?maxwidth=${maxWidth}&photo_reference=${reference}&key=${API_KEY}`;
+    console.log('[photo.js] Fetching from Google Maps Photo API...');
     
     const response = await fetch(photoUrl);
 
