@@ -1,8 +1,40 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import '../styles/RestaurantDetailSheet.css';
 
 function RestaurantDetailSheet({ restaurant, onClose }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const startYRef = useRef(0);
+  const sheetRef = useRef(null);
+
   if (!restaurant) return null;
+
+  const handleTouchStart = (e) => {
+    startYRef.current = e.touches[0].clientY;
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+
+    const currentY = e.touches[0].clientY;
+    const diff = startYRef.current - currentY;
+
+    // Dragging up - expand
+    if (diff > 50) {
+      setIsExpanded(true);
+      setIsDragging(false);
+    }
+    // Dragging down - close
+    if (diff < -50) {
+      setIsExpanded(false);
+      setIsDragging(false);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
 
   // Generate mock photo URL (in real app, use Google Places photo API)
   const photoUrl = restaurant.photos?.[0]
@@ -13,7 +45,16 @@ function RestaurantDetailSheet({ restaurant, onClose }) {
     <div className="restaurant-detail-sheet">
       <div className="sheet-overlay" onClick={onClose} />
       
-      <div className="sheet-content">
+      <div
+        className={`sheet-content ${isExpanded ? 'expanded' : ''}`}
+        ref={sheetRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Drag handle */}
+        <div className="drag-handle" />
+        
         {/* Photo carousel - horizontal thumbnails */}
         <div className="photo-carousel">
           {[photoUrl, photoUrl, photoUrl].map((url, idx) => (
@@ -74,10 +115,10 @@ function RestaurantDetailSheet({ restaurant, onClose }) {
           <button className="order-btn" onClick={() => alert('Order feature coming soon!')}>
             Order
           </button>
-
-          {/* Close button */}
-          <button className="close-btn" onClick={onClose}>×</button>
         </div>
+
+        {/* Close button */}
+        <button className="close-btn" onClick={onClose}>×</button>
       </div>
     </div>
   );
