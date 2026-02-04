@@ -1,15 +1,17 @@
 .restaurant-carousel-container {
-  position: absolute;
-  bottom: 25vh;
+  position: fixed;
+  bottom: 0;
   left: 0;
   right: 0;
   background: white;
   padding: 12px 8px;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
   gap: 8px;
   z-index: 50;
+  border-top: 1px solid #e8e8e8;
+  max-height: 220px;
 }
 
 .scroll-btn {
