@@ -1,13 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import '../styles/RestaurantCardCarousel.css';
 
 function RestaurantCardCarousel({ restaurants, onCardClick, onDismiss, onFocusedCardChange }) {
   const scrollContainerRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  const [focusedCardId, setFocusedCardId] = useState(restaurants[0]?.id);
 
-  const checkScroll = () => {
+  const checkScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
       setCanScrollLeft(scrollLeft > 0);
@@ -21,14 +20,12 @@ function RestaurantCardCarousel({ restaurants, onCardClick, onDismiss, onFocused
       const focusedIndex = Math.floor((centerPosition - cardWithGap / 2) / cardWithGap);
       
       if (focusedIndex >= 0 && focusedIndex < restaurants.length) {
-        const focusedId = restaurants[focusedIndex].id;
-        setFocusedCardId(focusedId);
         if (onFocusedCardChange) {
           onFocusedCardChange(restaurants[focusedIndex]);
         }
       }
     }
-  };
+  }, [restaurants, onFocusedCardChange]);
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
@@ -48,7 +45,7 @@ function RestaurantCardCarousel({ restaurants, onCardClick, onDismiss, onFocused
       container.addEventListener('scroll', checkScroll);
       return () => container.removeEventListener('scroll', checkScroll);
     }
-  }, [restaurants]);
+  }, [checkScroll]);
 
   if (!restaurants || restaurants.length === 0) {
     return null;
