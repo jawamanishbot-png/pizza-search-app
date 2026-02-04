@@ -52,6 +52,9 @@ function RestaurantDetailSheet({ restaurant, onClose }) {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Close button */}
+        <button className="close-btn" onClick={onClose}>×</button>
+
         {/* Drag handle */}
         <div className="drag-handle" />
         
@@ -116,9 +119,6 @@ function RestaurantDetailSheet({ restaurant, onClose }) {
             Order
           </button>
         </div>
-
-        {/* Close button */}
-        <button className="close-btn" onClick={onClose}>×</button>
       </div>
     </div>
   );
