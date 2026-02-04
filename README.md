@@ -1,70 +1,238 @@
-# Getting Started with Create React App
+# 🍕 Pizza Search App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern web application to search for and discover pizza restaurants in New York using Google Maps and Google Places API.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+✨ **Full Restaurant Search Functionality**
+- 🔍 Search for pizza restaurants near New York using Google Places API
+- 📍 Display restaurants on interactive Google Map
+- 🎯 Numbered markers (1, 2, 3, 10, etc.) for easy identification
+- 📊 Sort and filter restaurants by rating, price, availability
+- 🚗 Calculate distance in miles from current location
+- ⭐ Star ratings and review counts
+- 🏷️ Category tags (Pizza, Italian, etc.)
+- 📸 Restaurant photo carousel
+- 📞 Click-to-call phone numbers
+- 🔄 "Redo Search in This Area" button when map is dragged
+- 📍 Filter buttons: Sort by Rating, Open Now, Price Level, Takeout Available
+- 📱 Fully responsive design
 
-### `npm start`
+## Setup
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Prerequisites
+- Node.js (v14+)
+- npm or yarn
+- Google Maps API Key with:
+  - Maps JavaScript API
+  - Places API
+  - Distance Matrix API
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Installation
 
-### `npm test`
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd pizza-search-app
+   ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-### `npm run build`
+3. **Configure API Key**
+   - Copy `.env.example` to `.env.local`
+     ```bash
+     cp .env.example .env.local
+     ```
+   - Add your Google Maps API key:
+     ```
+     REACT_APP_GOOGLE_MAPS_API_KEY=your_api_key_here
+     ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Get Google Maps API Key
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project
+3. Enable these APIs:
+   - Maps JavaScript API
+   - Places API
+   - Distance Matrix API (optional, for advanced features)
+4. Create an API key (Credentials → Create Credentials → API Key)
+5. (Optional) Add API key restrictions for security
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Development
 
-### `npm run eject`
+### Start Development Server
+```bash
+npm start
+```
+Opens [http://localhost:3000](http://localhost:3000) in the browser.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Build for Production
+```bash
+npm run build
+```
+Builds the app for production in the `build` folder.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Run Tests
+```bash
+npm test
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Project Structure
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```
+src/
+├── pages/
+│   ├── Home.js           # Welcome screen
+│   └── Map.js            # Main map view with search
+├── components/
+│   ├── Header.js         # Top navigation bar
+│   ├── FilterBar.js      # Filter and sort buttons
+│   ├── RestaurantCard.js # Restaurant details panel
+│   └── NumberedMarker.js # Custom map markers
+├── utils/
+│   └── placesService.js  # Google Places API integration
+├── styles/
+│   ├── Home.css
+│   ├── Map.css
+│   ├── Header.css
+│   ├── FilterBar.css
+│   └── RestaurantCard.css
+├── App.js
+└── index.js
+```
 
-## Learn More
+## How It Works
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 1. Initial Search
+- App loads with default location (New York City)
+- Automatically fetches nearby pizza restaurants using Google Places API
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 2. Interactive Map
+- Each restaurant is marked with a numbered marker (1, 2, 3...)
+- Click any marker to view detailed restaurant information
 
-### Code Splitting
+### 3. Restaurant Details
+- Bottom card shows:
+  - Photo carousel with navigation
+  - Restaurant name and marker number
+  - Distance (miles)
+  - Star rating and review count
+  - Full address
+  - Price level and hours
+  - Category tags
+  - Contact number
+  - "Order Now" button links to restaurant website
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 4. Filters & Sorting
+- **Sort by Rating**: Order restaurants by highest rated
+- **Open Now**: Show only currently open restaurants
+- **Price Level**: Filter by budget
+- **Takeout**: Show restaurants offering takeout
 
-### Analyzing the Bundle Size
+### 5. Map Interactions
+- Drag the map to change your search area
+- "Redo Search in This Area" button appears when map is dragged
+- Click to search for restaurants in the new location
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Technologies Used
 
-### Making a Progressive Web App
+- **React 19** - UI framework
+- **React Router v6** - Navigation
+- **@react-google-maps/api** - Google Maps integration
+- **CSS3** - Styling and animations
+- **Google Places API** - Restaurant data
+- **Google Maps JavaScript API** - Map rendering
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## API Integration
 
-### Advanced Configuration
+The app uses the Google Places API for:
+- **nearbySearch()** - Find restaurants near coordinates
+- **getDetails()** - Get detailed restaurant information (hours, photos, reviews)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Distance calculations use the Haversine formula for accurate mile measurements.
 
-### Deployment
+## Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Deploy to Vercel
 
-### `npm run build` fails to minify
+1. **Connect to Vercel**
+   ```bash
+   npm i -g vercel
+   vercel
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+2. **Add Environment Variable**
+   - In Vercel project settings
+   - Add `REACT_APP_GOOGLE_MAPS_API_KEY` environment variable
+
+3. **Deploy**
+   ```bash
+   vercel --prod
+   ```
+
+## Performance
+
+- Production build: ~101 KB gzipped
+- Optimized images and lazy loading
+- Responsive design for all devices
+- Efficient API calls with result caching
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+- Mobile browsers (iOS Safari, Chrome Mobile)
+
+## Known Limitations
+
+- Requires valid Google Maps API key
+- API key should have appropriate restrictions for production
+- Free tier has rate limits; consider upgrading for production use
+- Search radius is fixed at 5 km (adjustable in code)
+
+## Future Enhancements
+
+- [ ] User location detection (GPS)
+- [ ] Advanced filtering (dietary preferences, delivery, etc.)
+- [ ] User ratings and reviews
+- [ ] Favorites/bookmarks
+- [ ] Route planning (directions)
+- [ ] Real-time availability updates
+- [ ] Multiple search locations
+- [ ] Dark mode
+
+## Troubleshooting
+
+### API Key Not Working
+- Verify the key is enabled in Google Cloud Console
+- Check that required APIs are enabled
+- Confirm there are no IP/domain restrictions
+
+### No Restaurants Found
+- Check internet connection
+- Verify Google Places API is enabled
+- Try a different location or adjust search radius in code
+- Check API usage in Google Cloud Console
+
+### Map Not Showing
+- Confirm `REACT_APP_GOOGLE_MAPS_API_KEY` is set in `.env.local`
+- Clear browser cache and restart dev server
+- Check browser console for errors
+
+## License
+
+This project is open source and available under the MIT License.
+
+## Support
+
+For issues, questions, or suggestions, please open an issue in the repository.
+
+---
+
+**Made with ❤️ for pizza lovers** 🍕
