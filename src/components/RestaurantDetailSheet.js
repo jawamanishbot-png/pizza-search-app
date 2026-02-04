@@ -64,22 +64,20 @@ function RestaurantDetailSheet({ restaurant, onClose }) {
         
         {/* Photo carousel - horizontal thumbnails */}
         <div className="photo-carousel">
-          {[photoUrl, photoUrl, photoUrl].map((url, idx) => (
-            <img
-              key={idx}
-              src={url}
-              alt={`${restaurant.name} ${idx + 1}`}
-              className="restaurant-photo"
-              onError={(e) => {
-                console.error(`[RestaurantDetailSheet] Photo failed to load (${idx}):`, url);
+          <img
+            src={photoUrl}
+            alt={restaurant.name}
+            className="restaurant-photo"
+            onError={() => {
+              if (!photoError) {
+                console.error('[RestaurantDetailSheet] Photo failed to load, showing placeholder');
                 setPhotoError(true);
-              }}
-              onLoad={() => {
-                console.log(`[RestaurantDetailSheet] Photo loaded successfully (${idx})`);
-                setPhotoError(false);
-              }}
-            />
-          ))}
+              }
+            }}
+            onLoad={() => {
+              console.log('[RestaurantDetailSheet] Photo loaded successfully');
+            }}
+          />
           <div className="see-all">See all</div>
         </div>
 
