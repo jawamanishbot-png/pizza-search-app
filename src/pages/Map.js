@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
 import { searchRestaurants } from '../services/restaurantService';
+import RestaurantDetailSheet from '../components/RestaurantDetailSheet';
 import '../styles/Map.css';
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -10,6 +11,7 @@ function Map() {
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedRestaurant, setSelectedRestaurant] = useState(null);
 
   useEffect(() => {
     // Only get user location, don't search
@@ -105,10 +107,19 @@ function Map() {
                 strokeWeight: 2,
                 scale: 1.5,
               }}
+              onClick={() => setSelectedRestaurant(r)}
             />
           ))}
         </GoogleMap>
       </LoadScript>
+
+      {/* Restaurant Detail Sheet */}
+      {selectedRestaurant && (
+        <RestaurantDetailSheet
+          restaurant={selectedRestaurant}
+          onClose={() => setSelectedRestaurant(null)}
+        />
+      )}
     </div>
   );
 }
