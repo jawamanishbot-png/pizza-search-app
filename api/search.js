@@ -17,21 +17,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = 'https://places.googleapis.com/v1/places:searchNearby';
+    const url = 'https://places.googleapis.com/v1/places:searchText';
     
     const payload = {
-      location: {
-        latitude: parseFloat(lat),
-        longitude: parseFloat(lng),
-      },
-      radius: parseInt(radius),
-      includedTypes: ['restaurant'],
-      textQuery: 'pizza',
+      textQuery: 'pizza restaurant',
       maxResultCount: 20,
+      locationBias: {
+        circle: {
+          center: {
+            latitude: parseFloat(lat),
+            longitude: parseFloat(lng),
+          },
+          radius: parseInt(radius),
+        },
+      },
       languageCode: 'en-US',
     };
 
-    console.log('[search.js] Calling Places API v1...');
+    console.log('[search.js] Calling Places API v1 searchText with payload:', JSON.stringify(payload, null, 2));
 
     const response = await fetch(url, {
       method: 'POST',
