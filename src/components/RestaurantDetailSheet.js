@@ -39,7 +39,7 @@ function RestaurantDetailSheet({ restaurant, onClose }) {
 
   // Generate photo URL using backend proxy
   const photoUrl = !photoError && restaurant.photo
-    ? `/api/photo?reference=${encodeURIComponent(restaurant.photo)}&maxWidth=400`
+    ? `/api/photo?uri=${encodeURIComponent(restaurant.photo)}&maxWidth=400`
     : 'https://via.placeholder.com/400x300?text=No+Photo+Available';
 
   return (
