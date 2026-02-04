@@ -35,20 +35,26 @@ export default async function handler(req, res) {
     }
 
     // Transform results
-    const restaurants = (data.results || []).map((place, index) => ({
-      id: place.place_id,
-      placeId: place.place_id,
-      number: index + 1,
-      name: place.name,
-      lat: place.geometry.location.lat,
-      lng: place.geometry.location.lng,
-      address: place.vicinity || 'Address not available',
-      rating: place.rating || 0,
-      reviews: place.user_ratings_total || 0,
-      isOpen: place.opening_hours?.open_now,
-      photo: place.photos?.[0]?.photo_reference,
-      types: place.types || [],
-    }));
+    const restaurants = (data.results || []).map((place, index) => {
+      const photoRef = place.photos?.[0]?.photo_reference;
+      console.log(`[search.js] Restaurant: ${place.name}, Photo Reference: ${photoRef ? 'YES' : 'NO'}`);
+      
+      return {
+        id: place.place_id,
+        placeId: place.place_id,
+        number: index + 1,
+        name: place.name,
+        lat: place.geometry.location.lat,
+        lng: place.geometry.location.lng,
+        address: place.vicinity || 'Address not available',
+        rating: place.rating || 0,
+        reviews: place.user_ratings_total || 0,
+        isOpen: place.opening_hours?.open_now,
+        photo: photoRef,
+        photos: place.photos || [],
+        types: place.types || [],
+      };
+    });
 
     res.status(200).json(restaurants);
   } catch (error) {
