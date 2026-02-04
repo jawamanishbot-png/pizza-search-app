@@ -8,24 +8,13 @@ const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 function Map() {
   const [center, setCenter] = useState({ lat: 40.7128, lng: -74.0060 });
   const [restaurants, setRestaurants] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [searched, setSearched] = useState(false);
 
   useEffect(() => {
-    const fetchRestaurants = async (location) => {
-      try {
-        setLoading(true);
-        const results = await searchRestaurants(location.lat, location.lng);
-        setRestaurants(results);
-      } catch (err) {
-        console.error('Error:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const getLocationAndSearch = () => {
+    // Only get user location, don't search
+    const getLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
@@ -34,20 +23,32 @@ function Map() {
               lng: position.coords.longitude,
             };
             setCenter(loc);
-            fetchRestaurants(loc);
           },
           (err) => {
             console.warn('Location error:', err);
-            fetchRestaurants({ lat: 40.7128, lng: -74.0060 });
+            // Default location stays set
           }
         );
-      } else {
-        fetchRestaurants({ lat: 40.7128, lng: -74.0060 });
       }
     };
 
-    getLocationAndSearch();
+    getLocation();
   }, []);
+
+  const handleRedoSearch = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const results = await searchRestaurants(center.lat, center.lng);
+      setRestaurants(results);
+      setSearched(true);
+    } catch (err) {
+      console.error('Error:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!API_KEY) {
     return <div className="error-message">❌ API key not configured</div>;
@@ -62,6 +63,13 @@ function Map() {
   return (
     <div className="map-page">
       {loading && <div className="loading-overlay">Loading restaurants...</div>}
+
+      {/* Redo Search Button */}
+      {!loading && (
+        <button className="redo-search-btn" onClick={handleRedoSearch}>
+          🔍 Redo Search In This Area
+        </button>
+      )}
 
       <LoadScript googleMapsApiKey={API_KEY}>
         <GoogleMap mapContainerStyle={mapStyle} center={center} zoom={13}>
