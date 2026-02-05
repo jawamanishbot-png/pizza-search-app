@@ -284,28 +284,92 @@ Why:
 
 ## Recommended Collaboration Framework
 
+### Bot Persona Selection
+
+**Choose ONE persona per project phase. Be explicit about it.**
+
+#### Junior Engineer Mode (Recommended)
+**Use this for:** App 1 → App 2 transitions, exploratory work, learning, anything with fuzzy scope
+
+**Manish's job:**
+- "Provide explicit, small tasks" (not ambiguous visions)
+- "Test after each deployment and give feedback"
+- "Stay involved; you're the decision-maker"
+- "Define acceptance criteria before Chati starts"
+
+**Chati's job:**
+- "Execute exactly what's asked, no more"
+- "Flag ambiguities immediately"
+- "Deliver working code in 15-20 min"
+- "Wait for approval before next step"
+
+**Characteristics:**
+- Scope is bounded (clear "done" criteria)
+- Feedback loops are tight (2-5 min)
+- Human makes decisions in real-time
+- Bot stays focused on execution
+- Confidence builds incrementally
+
+**Example prompts:**
+- ❌ "Make a pizza app" (too vague)
+- ✅ "Add numbered markers for restaurants. Test on device and send screenshot when done."
+
+#### TL (Tech Lead) Mode
+**Use this for:** Well-scoped problems, performance optimization, isolated bugs, deep technical work
+
+**Manish's job:**
+- "Define the problem and constraints clearly"
+- "Give the bot 2-4 hours of autonomy"
+- "Check in with a specific question, not ambient feedback"
+- "Accept higher risk for faster delivery"
+
+**Chati's job:**
+- "Make architectural decisions"
+- "Spin up subagents as needed"
+- "Report back with a working solution"
+- "Document decisions made"
+
+**Characteristics:**
+- Scope is well-understood and bounded
+- You trust the bot's judgment
+- Feedback loops are long (hours, not minutes)
+- Bot has autonomy to make decisions
+- Suitable for pure execution work
+
+**Example prompts:**
+- ✅ "The geolocation isn't working on iOS Safari. Figure out why and fix it. I'll check tomorrow."
+- ✅ "Add payment integration using Stripe. Use best practices. Report when done."
+
+---
+
 ### For Future Projects
 
-**Phase 1: Minimal Viable (48 hours max)**
+**Phase 1: Minimal Viable (48 hours max) — Use Junior Mode**
 - Scope: 1-2 core features only
 - Feedback loops: As tight as possible (2-5 min)
 - Manish involved continuously (testing each step)
+- Bot persona: Junior Engineer (explicit tasks, tight loops)
 - Goal: Working v1, deployed, documented
 
-**Phase 2: Expand (next week, as needed)**
+**Phase 2: Expand (next week, as needed) — Use Junior Mode**
 - Add 1 feature at a time
 - Same feedback loop discipline
 - Manish prioritizes; Chati builds
+- Bot persona: Junior Engineer (same as Phase 1)
 - No big refactors; incremental always
 
-**Phase 3: Polish (after features stabilize)**
+**Phase 3: Polish (after features stabilize) — Can Use TL Mode**
 - Optimization, error handling, edge cases
-- Can parallelize more (we know the scope)
+- Can parallelize more (we know the scope is fixed)
 - Subagents make sense here
+- Bot persona: TL (Chati leads, reports results)
+- Manish checks in less frequently
 
 ---
 
 ## The Manish-Chati Ideal Loop
+
+**This example uses Junior Engineer Mode (recommended for most work).**
 
 1. **Manish:** "Next feature: detail card when clicking a marker. Should show name, rating, address, directions button."
 2. **Chati:** "Understood. Will build & deploy in 15 min. I'll message when it's live."
@@ -321,6 +385,24 @@ Why:
 **Total cycle time per feature:** 20-30 min  
 **Confidence:** High (tested live, incremental feedback)  
 **Ability to pivot:** High (easy to change one feature without affecting others)
+
+---
+
+## Alternative: TL Mode Loop
+
+**Use this for well-scoped problems where you trust autonomy.**
+
+1. **Manish:** "The geolocation request is blocking page load on iOS. Debug and fix it. I need it working tomorrow morning."
+2. **Chati:** "On it. I'll investigate, test on different browsers, and deploy a fix."
+3. *(Chati works autonomously, spins up subagents as needed, makes decisions)*
+4. *(Chati commits multiple changes, deploys, tests thoroughly)*
+5. **Chati:** "Fixed. The issue was the geolocation request wasn't respecting the optional flag. Changed it to lazy-load on the map page instead. Here's the commit: [link]. Ready to merge."
+6. **Manish:** "Great. Thanks."
+7. *Move to next feature*
+
+**Total cycle time:** 4-8 hours  
+**Confidence:** Medium (you're trusting the bot's judgment)  
+**Ability to pivot:** Low (you're not involved in decisions)
 
 ---
 
