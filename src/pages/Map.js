@@ -3,7 +3,7 @@ import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
 import { searchRestaurants } from '../services/restaurantService';
 import RestaurantDetailSheetV2 from '../components/RestaurantDetailSheetV2';
 import RestaurantCardCarousel from '../components/RestaurantCardCarousel';
-import FilterBar from '../components/FilterBar';
+import RestaurantListSheet from '../components/RestaurantListSheet';
 import '../styles/Map.css';
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -15,6 +15,7 @@ function Map() {
   const [error, setError] = useState(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [showCarousel, setShowCarousel] = useState(false);
+  const [showListSheet, setShowListSheet] = useState(false);
   const [focusedRestaurant, setFocusedRestaurant] = useState(null);
   const [filters, setFilters] = useState({
     sortBy: null,
@@ -98,14 +99,10 @@ function Map() {
       setLoading(true);
       setError(null);
       const results = await searchRestaurants(center.lat, center.lng);
-      const filteredResults = applyFilters(results, filters);
       setRestaurants(results); // Keep all for filtering
-      setShowCarousel(true); // Show carousel with cards
+      setShowListSheet(true); // Show list sheet, not carousel
+      setShowCarousel(false);
       setSelectedRestaurant(null);
-      // Set first restaurant as focused
-      if (filteredResults.length > 0) {
-        setFocusedRestaurant(filteredResults[0]);
-      }
     } catch (err) {
       console.error('Error:', err);
       setError(err.message);
@@ -198,20 +195,30 @@ function Map() {
         </GoogleMap>
       </LoadScript>
 
-      {/* Filters + Restaurant Card Carousel */}
+      {/* List Sheet (from Redo Search) */}
+      {restaurants.length > 0 && showListSheet && (
+        <RestaurantListSheet
+          restaurants={applyFilters(restaurants, filters)}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          onCardClick={(r) => {
+            setSelectedRestaurant(r);
+            setFocusedRestaurant(r);
+            setShowCarousel(true);
+            setShowListSheet(false);
+          }}
+          onClose={() => setShowListSheet(false)}
+        />
+      )}
+
+      {/* Carousel (from clicking marker) */}
       {restaurants.length > 0 && showCarousel && !selectedRestaurant && (
-        <>
-          <FilterBar 
-            filters={filters}
-            onFilterChange={handleFilterChange}
-          />
-          <RestaurantCardCarousel
-            restaurants={applyFilters(restaurants, filters)}
-            onCardClick={setSelectedRestaurant}
-            onDismiss={() => setShowCarousel(false)}
-            onFocusedCardChange={setFocusedRestaurant}
-          />
-        </>
+        <RestaurantCardCarousel
+          restaurants={applyFilters(restaurants, filters)}
+          onCardClick={setSelectedRestaurant}
+          onDismiss={() => setShowCarousel(false)}
+          onFocusedCardChange={setFocusedRestaurant}
+        />
       )}
 
       {/* Restaurant Detail Sheet */}
