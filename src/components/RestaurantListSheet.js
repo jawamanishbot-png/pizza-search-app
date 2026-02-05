@@ -106,13 +106,13 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
               className="restaurant-list-card"
               onClick={() => onCardClick(restaurant)}
             >
-              {/* Photos carousel */}
+              {/* Photos */}
               <div className="list-card-photos">
                 <img
-                  src="https://via.placeholder.com/200x150?text=No+Photo"
+                  src={restaurant.photo ? `/api/photo?reference=${encodeURIComponent(restaurant.photo)}&maxWidth=200` : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 150%22%3E%3Crect fill=%22%23e8e8e8%22 width=%22200%22 height=%22150%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23999%22%3ENo Photo%3C/text%3E%3C/svg%3E'}
                   alt={restaurant.name}
                   onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/200x150?text=No+Photo';
+                    e.target.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 150%22%3E%3Crect fill=%22%23e8e8e8%22 width=%22200%22 height=%22150%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2216%22 fill=%22%23999%22%3ENo Photo%3C/text%3E%3C/svg%3E';
                   }}
                 />
               </div>
