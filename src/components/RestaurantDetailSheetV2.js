@@ -3,6 +3,9 @@ import '../styles/RestaurantDetailSheetV2.css';
 
 function RestaurantDetailSheetV2({ restaurant, onClose }) {
   const [activeTab, setActiveTab] = useState('menu');
+  const [userRating, setUserRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [showAllInsights, setShowAllInsights] = useState(false);
 
   if (!restaurant) return null;
 
@@ -207,9 +210,108 @@ function RestaurantDetailSheetV2({ restaurant, onClose }) {
 
           {activeTab === 'reviews' && (
             <div className="tab-reviews">
-              <p style={{padding: '16px', color: '#999'}}>
-                Reviews coming soon
-              </p>
+              {/* Leave a Review Section */}
+              <div className="review-section">
+                <h3>Leave a review</h3>
+                
+                {/* Star Rating */}
+                <div className="star-rating">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <span
+                      key={star}
+                      className={`star ${userRating >= star ? 'active' : ''}`}
+                      onClick={() => setUserRating(star)}
+                    >
+                      ★
+                    </span>
+                  ))}
+                </div>
+
+                {/* Review Text Area */}
+                <textarea
+                  className="review-textarea"
+                  placeholder="Tap to review..."
+                  value={reviewText}
+                  onChange={(e) => setReviewText(e.target.value)}
+                />
+
+                {/* Review Actions */}
+                <div className="review-actions">
+                  <button className="review-btn">📷 Add photo</button>
+                  <button className="review-btn">⚙️ Check In</button>
+                </div>
+              </div>
+
+              {/* Recommended Reviews Section */}
+              <div className="reviews-list-section">
+                <h3>Recommended reviews</h3>
+
+                {/* Overall Rating */}
+                <div className="overall-rating">
+                  <div className="rating-left">
+                    <div className="big-stars">
+                      {'★'.repeat(4)}
+                      {'☆'.repeat(1)}
+                    </div>
+                    <div className="rating-number">4.5</div>
+                    <div className="review-count">1,543 reviews</div>
+                  </div>
+
+                  {/* Rating Distribution */}
+                  <div className="rating-distribution">
+                    {[5, 4, 3, 2, 1].map((rating) => (
+                      <div key={rating} className="rating-row">
+                        <span className="rating-label">{rating}</span>
+                        <div className="rating-bar">
+                          <div 
+                            className="rating-fill" 
+                            style={{
+                              width: rating === 5 ? '95%' : rating === 4 ? '40%' : rating === 3 ? '20%' : rating === 2 ? '10%' : '8%'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Filter/Search Controls */}
+                <div className="review-controls">
+                  <button className="control-btn">🔍 Search</button>
+                  <button className="control-btn">▼ Yelp sort</button>
+                  <button className="control-btn">▼ Filter by rating</button>
+                </div>
+
+                {/* Insights Section */}
+                <div className="insights-section">
+                  <h4>Insights</h4>
+                  <div className={`insights-grid ${showAllInsights ? 'expanded' : ''}`}>
+                    <div className="insight-tag">✓ Ambience (641)</div>
+                    <div className="insight-tag">✓ Drinks (116)</div>
+                    <div className="insight-tag">✓ Food (1452)</div>
+                    {showAllInsights && (
+                      <>
+                        <div className="insight-tag">✓ Service (1073)</div>
+                        <div className="insight-tag">◯ Wait time (780)</div>
+                      </>
+                    )}
+                  </div>
+                  <button 
+                    className="hide-insights-btn"
+                    onClick={() => setShowAllInsights(!showAllInsights)}
+                  >
+                    {showAllInsights ? 'Hide insights ▲' : 'Show more insights ▼'}
+                  </button>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="info-actions">
+                  <button className="info-action-btn btn-website">✏️ Website</button>
+                  <button className="info-action-btn">☎️ Call</button>
+                  <button className="info-action-btn">📍 Map</button>
+                  <button className="info-action-btn">🔖 Save</button>
+                </div>
+              </div>
             </div>
           )}
 
