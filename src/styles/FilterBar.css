@@ -1,11 +1,26 @@
-.filter-bar {
+.filter-bar-container {
+  position: fixed;
+  bottom: 250px;
+  left: 0;
+  right: 0;
+  z-index: 100;
   background: white;
   border-top: 1px solid #eee;
-  padding: 1rem;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.filter-bar {
   display: flex;
   gap: 0.75rem;
-  flex-wrap: wrap;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  padding: 0.75rem 1rem;
+  min-width: min-content;
+  position: relative;
+}
+
+.filter-dropdown {
+  position: relative;
 }
 
 .filter-btn {
@@ -19,6 +34,7 @@
   transition: all 0.2s ease;
   white-space: nowrap;
   font-weight: 500;
+  flex-shrink: 0;
 }
 
 .filter-btn:hover {
@@ -37,14 +53,64 @@
   transform: scale(0.95);
 }
 
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 150px;
+  margin-top: 4px;
+  overflow: hidden;
+}
+
+.dropdown-menu button {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: white;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #666;
+  transition: all 0.15s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dropdown-menu button:last-child {
+  border-bottom: none;
+}
+
+.dropdown-menu button:hover {
+  background: #f9f9f9;
+  color: #667eea;
+}
+
 @media (max-width: 600px) {
+  .filter-bar-container {
+    bottom: 200px;
+  }
+
   .filter-bar {
-    padding: 0.75rem;
+    padding: 0.5rem 0.75rem;
     gap: 0.5rem;
   }
 
   .filter-btn {
     padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .dropdown-menu {
+    min-width: 130px;
+  }
+
+  .dropdown-menu button {
+    padding: 0.6rem 0.75rem;
     font-size: 0.85rem;
   }
 }

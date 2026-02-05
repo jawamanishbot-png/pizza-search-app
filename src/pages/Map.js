@@ -3,6 +3,7 @@ import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
 import { searchRestaurants } from '../services/restaurantService';
 import RestaurantDetailSheetV2 from '../components/RestaurantDetailSheetV2';
 import RestaurantCardCarousel from '../components/RestaurantCardCarousel';
+import FilterBar from '../components/FilterBar';
 import '../styles/Map.css';
 
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
@@ -15,6 +16,12 @@ function Map() {
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [showCarousel, setShowCarousel] = useState(false);
   const [focusedRestaurant, setFocusedRestaurant] = useState(null);
+  const [filters, setFilters] = useState({
+    sortBy: null,
+    openNow: false,
+    priceLevel: null,
+    takeout: false,
+  });
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -55,17 +62,49 @@ function Map() {
     }
   }, [focusedRestaurant, showCarousel]);
 
+  const applyFilters = (restaurantList, filterSettings) => {
+    let filtered = [...restaurantList];
+
+    // Open Now filter
+    if (filterSettings.openNow) {
+      filtered = filtered.filter(r => r.isOpen !== false);
+    }
+
+    // Price Level filter
+    if (filterSettings.priceLevel) {
+      const priceNum = filterSettings.priceLevel === '$' ? 1 : 
+                       filterSettings.priceLevel === '$$' ? 2 : 
+                       filterSettings.priceLevel === '$$$' ? 3 : 4;
+      filtered = filtered.filter(r => (r.priceLevel || 2) === priceNum);
+    }
+
+    // Takeout filter
+    if (filterSettings.takeout) {
+      filtered = filtered.filter(r => r.takeout !== false && r.dineIn !== true);
+    }
+
+    // Sort
+    if (filterSettings.sortBy === 'rating') {
+      filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else if (filterSettings.sortBy === 'distance') {
+      filtered.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+    }
+
+    return filtered;
+  };
+
   const handleRedoSearch = async () => {
     try {
       setLoading(true);
       setError(null);
       const results = await searchRestaurants(center.lat, center.lng);
-      setRestaurants(results);
+      const filteredResults = applyFilters(results, filters);
+      setRestaurants(results); // Keep all for filtering
       setShowCarousel(true); // Show carousel with cards
       setSelectedRestaurant(null);
       // Set first restaurant as focused
-      if (results.length > 0) {
-        setFocusedRestaurant(results[0]);
+      if (filteredResults.length > 0) {
+        setFocusedRestaurant(filteredResults[0]);
       }
     } catch (err) {
       console.error('Error:', err);
@@ -73,6 +112,10 @@ function Map() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
   };
 
   if (!API_KEY) {
@@ -155,14 +198,20 @@ function Map() {
         </GoogleMap>
       </LoadScript>
 
-      {/* Restaurant Card Carousel */}
+      {/* Filters + Restaurant Card Carousel */}
       {restaurants.length > 0 && showCarousel && !selectedRestaurant && (
-        <RestaurantCardCarousel
-          restaurants={restaurants}
-          onCardClick={setSelectedRestaurant}
-          onDismiss={() => setShowCarousel(false)}
-          onFocusedCardChange={setFocusedRestaurant}
-        />
+        <>
+          <FilterBar 
+            filters={filters}
+            onFilterChange={handleFilterChange}
+          />
+          <RestaurantCardCarousel
+            restaurants={applyFilters(restaurants, filters)}
+            onCardClick={setSelectedRestaurant}
+            onDismiss={() => setShowCarousel(false)}
+            onFocusedCardChange={setFocusedRestaurant}
+          />
+        </>
       )}
 
       {/* Restaurant Detail Sheet */}
