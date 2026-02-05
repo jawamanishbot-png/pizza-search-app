@@ -137,23 +137,70 @@ function RestaurantDetailSheetV2({ restaurant, onClose }) {
 
           {activeTab === 'info' && (
             <div className="tab-info">
-              <div className="info-item">
-                <span className="info-label">📍 Address</span>
-                <span className="info-value">{restaurant.address}</span>
+              {/* Hours Section */}
+              <div className="info-section">
+                <h4 className="section-title">Hours</h4>
+                <div className="section-content">
+                  <span className="updated-ago">Updated over 3 months ago</span>
+                  <span className="status-open" style={{color: restaurant.isOpen !== false ? '#27ae60' : '#e74c3c'}}>
+                    {restaurant.isOpen !== false ? '✓ Open until 9:00 PM' : '✕ Closed now'} • 5:00 PM - 10:00 PM
+                  </span>
+                </div>
+                <button className="expand-btn">→</button>
               </div>
-              <div className="info-item">
-                <span className="info-label">🕐 Hours</span>
-                <span className="info-value">Open until 9:00 PM</span>
+
+              {/* Website Section */}
+              <div className="info-section">
+                <h4 className="section-title">Website</h4>
+                <div className="section-content">
+                  <a href="#" className="info-link">pizzarestaurant.com</a>
+                </div>
+                <button className="expand-btn">↗️</button>
               </div>
-              <div className="info-item">
-                <span className="info-label">💰 Price Range</span>
-                <span className="info-value">$$</span>
+
+              {/* Call Section */}
+              <div className="info-section">
+                <h4 className="section-title">Call</h4>
+                <div className="section-content">
+                  <a href="tel:" className="info-link">(206) 123-4567</a>
+                </div>
+                <button className="expand-btn">☎️</button>
               </div>
-              <div className="info-item">
-                <span className="info-label">🏷️ Categories</span>
-                <span className="info-value">
-                  {(restaurant.types || []).slice(0, 3).join(', ')}
-                </span>
+
+              {/* Message Section */}
+              <div className="info-section">
+                <h4 className="section-title">Message</h4>
+                <button className="message-btn">💬</button>
+              </div>
+
+              {/* Map Section */}
+              <div className="info-map">
+                <div className="map-placeholder">
+                  <img src="https://via.placeholder.com/500x300?text=Google+Map" alt="Location Map" />
+                </div>
+              </div>
+
+              {/* Directions Info */}
+              <div className="directions-info">
+                <div className="drive-time">
+                  <span className="icon">🚗</span>
+                  <div className="drive-details">
+                    <div className="time-distance">20 min drive <span className="distance">12 mi</span></div>
+                    <div className="address">{restaurant.address}</div>
+                  </div>
+                </div>
+                <div className="parking-info">
+                  <span className="icon">🅿️</span>
+                  <span>Street Parking</span>
+                </div>
+              </div>
+
+              {/* Bottom Action Buttons */}
+              <div className="info-actions">
+                <button className="info-action-btn btn-website">✏️ Website</button>
+                <button className="info-action-btn">☎️ Call</button>
+                <button className="info-action-btn">📍 Map</button>
+                <button className="info-action-btn">🔖 Save</button>
               </div>
             </div>
           )}
