@@ -350,8 +350,9 @@
   object-fit: cover;
 }
 
-/* Info Tab */
-.tab-info {
+/* Info Section at Bottom */
+.detail-info-bottom {
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 0;
