@@ -164,7 +164,7 @@ function RestaurantDetailSheetV2({ restaurant, onClose }) {
           <div className="info-section">
             <h4 className="section-title">Website</h4>
             <div className="section-content">
-              <a href="#" className="info-link">pizzarestaurant.com</a>
+              <a href="https://pizzarestaurant.com" target="_blank" rel="noopener noreferrer" className="info-link">pizzarestaurant.com</a>
             </div>
             <button className="expand-btn">↗️</button>
           </div>
@@ -173,7 +173,7 @@ function RestaurantDetailSheetV2({ restaurant, onClose }) {
           <div className="info-section">
             <h4 className="section-title">Call</h4>
             <div className="section-content">
-              <a href="tel:" className="info-link">(206) 123-4567</a>
+              <a href="tel:+12061234567" className="info-link">(206) 123-4567</a>
             </div>
             <button className="expand-btn">☎️</button>
           </div>
