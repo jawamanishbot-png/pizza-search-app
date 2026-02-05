@@ -111,6 +111,106 @@
 
 ---
 
+## Bot Persona: TL vs. Junior Engineer
+
+This retrospective reveals something crucial: **the bot persona you needed was different in each app.**
+
+### App 1: Manish Treated Chati as a TL (Tech Lead)
+
+**What this looked like:**
+- High-level vision: "Build a pizza delivery app"
+- Implicit scope: Chati decided what features were essential
+- Autonomy: Chati spun up subagents, made architectural decisions, prioritized work
+- Communication: Async, approvals after work was complete
+- Implicit prompts: "Make this good" (not "Add a favorites button with 15s timeout")
+
+**Chati's responsibilities:**
+- Scope definition
+- Technical architecture
+- Subteam management
+- Risk assessment
+- Feature prioritization
+
+**Why it failed:**
+- A bot operating as TL over 2 days → scope exploded
+- TL autonomy works when the domain is clear and bounded; pizza app was open-ended
+- Feedback loops too loose; Manish wasn't steering the ship in real-time
+- When issues emerged (Firebase creds, API failures), the TL had already committed to a direction
+- Subagent parallelization looked efficient but hid complexity
+- By the time Manish could correct course, the codebase was already tangled
+
+### App 2: Manish Treated Chati as a Junior Engineer
+
+**What this looked like:**
+- Specific tasks: "Step 1: Pizza restaurant search with numbered markers"
+- Explicit scope: Each step is 1-2 features, defined before coding starts
+- Limited autonomy: Execute exactly what's asked, flag blockers
+- Communication: Sync, tight feedback loops (2-3 min)
+- Explicit prompts: "Do X. I'll test in 2 min."
+
+**Chati's responsibilities:**
+- Execute the task well
+- Flag ambiguities immediately
+- Test before reporting
+- Suggest next steps (but don't decide)
+- Maintain clean code/commits
+
+**Why it worked:**
+- Clear scope meant no ambiguity about what "done" looks like
+- Manish made real-time decisions: "It looks good" or "Make the text bigger"
+- Tight loops meant you caught issues in 2 min vs. after deployment
+- Subagent parallelization wasn't needed (focus work, done faster)
+- Bot stayed in lane; no scope creep
+- Confidence built with each step
+
+### The Tradeoffs
+
+| Dimension | TL Mode | Junior Mode |
+|-----------|---------|-------------|
+| **Best For** | Well-defined problem, trusted bot | Exploratory work, learning, tight control |
+| **Scope Risk** | High (bot can over-scope) | Low (human controls scope) |
+| **Speed (initially)** | Fast (parallelization) | Slower (sequential) |
+| **Speed (over time)** | Slows down (debugging complex code) | Stays fast (easy to iterate) |
+| **Human Involvement** | Low-touch | High-touch |
+| **Feedback Loops** | Long (30+ min) | Short (2-3 min) |
+| **Best Outcome** | Experienced bot + clear domain | High confidence + clean iterations |
+| **Worst Outcome** | Scope explosion + hidden complexity | Micromanagement (feels slow) |
+| **Trust Required** | High (bot makes decisions alone) | Medium (bot executes well) |
+
+### When to Use Each Mode
+
+**Use TL Mode when:**
+- You have a deeply constrained problem (e.g., "Fix the geolocation bug")
+- The scope is obvious and limited (e.g., "Add a button that does X")
+- You trust the bot's judgment on architecture
+- You want fast delivery and don't need to stay in the loop
+- The domain is stable (not exploratory)
+
+**Use Junior Mode when:**
+- You're exploring (not sure what the right solution looks like)
+- Scope is fuzzy or could expand
+- You want to stay hands-on and learn
+- You need high confidence in every decision
+- The project could go sideways (and you want to steer it)
+
+### For Manish + Chati Going Forward
+
+**Strong recommendation: Default to Junior Mode.**
+
+Why:
+- Pizza Search proved it works better
+- You get to stay in control (not guessing what's happening)
+- Faster feedback loops catch issues early
+- Builds confidence in both directions (Manish knows Chati is executing well, Chati knows it's solving the right problem)
+- Scope stays bounded (hard to explode from 1-2 features at a time)
+
+**Only switch to TL Mode when:**
+- You explicitly say: "I'm stepping back; you lead this, I'll check in tomorrow"
+- The problem is truly well-defined and scoped
+- You're confident the bot understands the constraints
+
+---
+
 ## The Better Collaboration Model
 
 ### Core Principles
