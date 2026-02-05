@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
 import { searchRestaurants } from '../services/restaurantService';
-import RestaurantDetailSheet from '../components/RestaurantDetailSheet';
+import RestaurantDetailSheetV2 from '../components/RestaurantDetailSheetV2';
 import RestaurantCardCarousel from '../components/RestaurantCardCarousel';
 import '../styles/Map.css';
 
@@ -167,7 +167,7 @@ function Map() {
 
       {/* Restaurant Detail Sheet */}
       {selectedRestaurant && showCarousel && (
-        <RestaurantDetailSheet
+        <RestaurantDetailSheetV2
           restaurant={selectedRestaurant}
           onClose={() => setSelectedRestaurant(null)}
         />
