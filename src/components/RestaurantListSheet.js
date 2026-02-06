@@ -10,7 +10,6 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
   const [dragOffset, setDragOffset] = useState(0);
   const sheetRef = useRef(null);
   const contentRef = useRef(null);
-  const peekHeight = 280; // pixels
 
   if (!restaurants || restaurants.length === 0) {
     return null;
