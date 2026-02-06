@@ -7,23 +7,8 @@
   width: 100%;
   touch-action: none;
   user-select: none;
-  will-change: transform;
-}
-
-.restaurant-list-sheet.peek {
-  height: 100px;
-  transition: height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: height;
   overflow: hidden;
-}
-
-.restaurant-list-sheet.expanded {
-  height: 100vh;
-  top: 0;
-  transition: height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.restaurant-list-sheet.dragging {
-  transition: none;
 }
 
 .sheet-overlay {
@@ -96,7 +81,7 @@
 /* Filter Bar */
 .list-filter-bar {
   position: sticky;
-  top: 40px;
+  top: 50px;
   background: white;
   border-bottom: 1px solid #f0f0f0;
   display: flex;
@@ -398,14 +383,6 @@
 }
 
 @media (max-width: 600px) {
-  .restaurant-list-sheet {
-    transition: height 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  }
-
-  .restaurant-list-sheet.peek {
-    height: 95px;
-    overflow: hidden;
-  }
 
   .list-sheet-content {
     border-radius: 16px 16px 0 0;

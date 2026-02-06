@@ -7,9 +7,11 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
   const [isExpanded, setIsExpanded] = useState(false);
   const [dragStart, setDragStart] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragOffset, setDragOffset] = useState(0);
+  const [dragHeight, setDragHeight] = useState(100);
   const sheetRef = useRef(null);
   const contentRef = useRef(null);
+  const peekHeight = 100;
+  const expandedHeight = window.innerHeight;
 
   if (!restaurants || restaurants.length === 0) {
     return null;
@@ -54,15 +56,16 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
     if (!isDragging) return;
 
     const currentY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-    const offset = currentY - dragStart;
+    const offset = dragStart - currentY; // Dragging up = positive offset
 
-    // Limit offset to prevent dragging past bounds
     if (isExpanded) {
-      // When expanded, can drag down
-      setDragOffset(Math.max(offset, 0));
+      // When expanded, dragging down collapses (negative offset)
+      const newHeight = Math.max(expandedHeight + offset, peekHeight);
+      setDragHeight(newHeight);
     } else {
-      // When peeked, can drag up
-      setDragOffset(Math.min(offset, 0));
+      // When peeked, dragging up expands (positive offset)
+      const newHeight = Math.min(peekHeight - offset, expandedHeight);
+      setDragHeight(newHeight);
     }
   };
 
@@ -71,29 +74,31 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
 
     setIsDragging(false);
     const currentY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-    const dragDistance = currentY - dragStart;
+    const dragDistance = dragStart - currentY; // Positive = up, Negative = down
     
     const threshold = 50; // pixels to trigger state change
 
-    if (isExpanded && dragDistance > threshold) {
+    if (isExpanded && dragDistance < -threshold) {
       // Dragged down enough = collapse
       setIsExpanded(false);
-    } else if (!isExpanded && dragDistance < -threshold) {
+      setDragHeight(peekHeight);
+    } else if (!isExpanded && dragDistance > threshold) {
       // Dragged up enough = expand
       setIsExpanded(true);
+      setDragHeight(expandedHeight);
+    } else {
+      // Snap back to current state
+      setDragHeight(isExpanded ? expandedHeight : peekHeight);
     }
-
-    // Reset drag offset
-    setDragOffset(0);
   };
 
   return (
     <div 
       ref={sheetRef}
-      className={`restaurant-list-sheet ${isExpanded ? 'expanded' : 'peek'} ${isDragging ? 'dragging' : ''}`}
+      className={`restaurant-list-sheet ${isDragging ? 'dragging' : ''}`}
       style={{
-        transform: isDragging ? `translateY(${dragOffset}px)` : 'translateY(0)',
-        transition: isDragging ? 'none' : 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        height: `${dragHeight}px`,
+        transition: isDragging ? 'none' : 'height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
       }}
       onMouseDown={handleDragStart}
       onMouseMove={handleDragMove}
