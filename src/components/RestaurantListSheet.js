@@ -6,6 +6,8 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
   const [showPriceMenu, setShowPriceMenu] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [dragStart, setDragStart] = useState(0);
+  const [dragVelocity, setDragVelocity] = useState(0);
+  const [lastDragTime, setLastDragTime] = useState(0);
   const sheetRef = useRef(null);
   const contentRef = useRef(null);
 
@@ -37,19 +39,31 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
   };
 
   const handleDragStart = (e) => {
-    setDragStart(e.clientY || (e.touches && e.touches[0].clientY) || 0);
+    const currentY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+    setDragStart(currentY);
+    setLastDragTime(Date.now());
+    setDragVelocity(0);
   };
 
   const handleDragEnd = (e) => {
     const dragEnd = e.clientY || (e.changedTouches && e.changedTouches[0].clientY) || 0;
     const dragDistance = dragStart - dragEnd;
+    const dragTime = Date.now() - lastDragTime;
+    
+    // Calculate velocity (pixels per ms)
+    const velocity = dragTime > 0 ? dragDistance / dragTime : 0;
+    setDragVelocity(velocity);
 
-    // Drag up more than 50px = expand
-    if (dragDistance > 50) {
+    // Threshold: 30px distance OR velocity > 0.5 px/ms
+    const threshold = 30;
+    const velocityThreshold = 0.5;
+
+    // Drag up more than threshold OR high upward velocity = expand
+    if (dragDistance > threshold || velocity > velocityThreshold) {
       setIsExpanded(true);
     }
-    // Drag down more than 50px = collapse
-    else if (dragDistance < -50) {
+    // Drag down more than threshold OR high downward velocity = collapse
+    else if (dragDistance < -threshold || velocity < -velocityThreshold) {
       setIsExpanded(false);
     }
   };
