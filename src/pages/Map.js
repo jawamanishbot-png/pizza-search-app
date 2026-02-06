@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { GoogleMap, LoadScript, MarkerF } from '@react-google-maps/api';
 import { searchRestaurants } from '../services/restaurantService';
 import RestaurantDetailSheetV2 from '../components/RestaurantDetailSheetV2';
@@ -9,6 +10,9 @@ import '../styles/Map.css';
 const API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 function Map() {
+  const location = useLocation();
+  const searchQuery = location.state?.searchQuery || 'restaurants';
+  
   const [center, setCenter] = useState({ lat: 40.7128, lng: -74.0060 });
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -25,9 +29,26 @@ function Map() {
   });
   const mapRef = useRef(null);
 
+  const performSearch = useCallback(async (lat, lng) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const results = await searchRestaurants(lat, lng, searchQuery);
+      setRestaurants(results);
+      setShowListSheet(true);
+      setShowCarousel(false);
+      setSelectedRestaurant(null);
+    } catch (err) {
+      console.error('Error:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [searchQuery]);
+
   useEffect(() => {
-    // Only get user location, don't search
-    const getLocation = () => {
+    // Get user location and auto-search
+    const getLocationAndSearch = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
@@ -36,17 +57,22 @@ function Map() {
               lng: position.coords.longitude,
             };
             setCenter(loc);
+            // Auto-search with the query
+            performSearch(loc.lat, loc.lng);
           },
           (err) => {
             console.warn('Location error:', err);
-            // Default location stays set
+            // Use default location and search
+            performSearch(40.7128, -74.0060);
           }
         );
+      } else {
+        performSearch(40.7128, -74.0060);
       }
     };
 
-    getLocation();
-  }, []);
+    getLocationAndSearch();
+  }, [performSearch]);
 
   // Auto-center map on focused restaurant as carousel scrolls
   useEffect(() => {
@@ -95,20 +121,7 @@ function Map() {
   };
 
   const handleRedoSearch = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const results = await searchRestaurants(center.lat, center.lng);
-      setRestaurants(results); // Keep all for filtering
-      setShowListSheet(true); // Show list sheet, not carousel
-      setShowCarousel(false);
-      setSelectedRestaurant(null);
-    } catch (err) {
-      console.error('Error:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+    performSearch(center.lat, center.lng);
   };
 
   const handleFilterChange = (newFilters) => {

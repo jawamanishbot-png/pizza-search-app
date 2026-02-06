@@ -6,7 +6,7 @@ export default async function handler(req, res) {
 
   // Get params from query or body
   const params = req.method === 'GET' ? req.query : req.body;
-  const { lat, lng, radius = 5000 } = params;
+  const { lat, lng, radius = 5000, query = 'restaurants' } = params;
 
   // Validate parameters
   if (!lat || !lng) {
@@ -19,14 +19,14 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Using old Nearby Search API (still works, has photo support)
+    // Using Nearby Search API with dynamic keyword
     const url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json';
     
     const queryParams = new URLSearchParams({
       location: `${lat},${lng}`,
       radius: radius,
       type: 'restaurant',
-      keyword: 'pizza',
+      keyword: query,
       key: API_KEY,
     });
 
