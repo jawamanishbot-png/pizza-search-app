@@ -185,9 +185,9 @@ function Map() {
                   scale: markerScale,
                 }}
                 onClick={() => {
-                  setSelectedRestaurant(r);
                   setFocusedRestaurant(r);
                   setShowCarousel(true);
+                  setSelectedRestaurant(null); // Show carousel, not detail sheet
                 }}
               />
             );
