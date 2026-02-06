@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../styles/RestaurantListSheet.css';
 
 function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick, onClose }) {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showPriceMenu, setShowPriceMenu] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [dragStart, setDragStart] = useState(0);
+  const sheetRef = useRef(null);
+  const contentRef = useRef(null);
 
   if (!restaurants || restaurants.length === 0) {
     return null;
@@ -32,15 +36,45 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
     });
   };
 
+  const handleDragStart = (e) => {
+    setDragStart(e.clientY || (e.touches && e.touches[0].clientY) || 0);
+  };
+
+  const handleDragEnd = (e) => {
+    const dragEnd = e.clientY || (e.changedTouches && e.changedTouches[0].clientY) || 0;
+    const dragDistance = dragStart - dragEnd;
+
+    // Drag up more than 50px = expand
+    if (dragDistance > 50) {
+      setIsExpanded(true);
+    }
+    // Drag down more than 50px = collapse
+    else if (dragDistance < -50) {
+      setIsExpanded(false);
+    }
+  };
+
   return (
-    <div className="restaurant-list-sheet">
-      <div className="sheet-overlay" onClick={onClose} />
+    <div 
+      ref={sheetRef}
+      className={`restaurant-list-sheet ${isExpanded ? 'expanded' : 'peek'}`}
+      onMouseDown={handleDragStart}
+      onMouseUp={handleDragEnd}
+      onTouchStart={handleDragStart}
+      onTouchEnd={handleDragEnd}
+    >
+      {isExpanded && <div className="sheet-overlay" onClick={() => setIsExpanded(false)} />}
       
-      <div className="list-sheet-content">
+      <div className="list-sheet-content" ref={contentRef}>
+        {/* Drag Handle */}
+        <div className="drag-handle" />
+
         {/* Header */}
         <div className="list-sheet-header">
           <h2>All Results</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
+          {isExpanded && (
+            <button className="close-btn" onClick={() => setIsExpanded(false)}>−</button>
+          )}
         </div>
 
         {/* Filter Bar */}
