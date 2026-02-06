@@ -41,13 +41,7 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
   };
 
   const handleDragStart = (e) => {
-    const target = e.target || e.touches?.[0]?.target;
-    // Only start drag from drag handle or header
-    if (!target?.closest('.drag-handle') && !target?.closest('.list-sheet-header')) {
-      return;
-    }
-    
-    const currentY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+    const currentY = e.clientY || (e.touches?.[0]?.clientY) || 0;
     setDragStart(currentY);
     setIsDragging(true);
   };
@@ -55,37 +49,38 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
   const handleDragMove = (e) => {
     if (!isDragging) return;
 
-    const currentY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
-    const offset = dragStart - currentY; // Dragging up = positive offset
+    const currentY = e.clientY || (e.touches?.[0]?.clientY) || 0;
+    const distance = dragStart - currentY; // Positive = up, Negative = down
 
+    let newHeight;
     if (isExpanded) {
-      // When expanded, dragging down collapses (negative offset)
-      const newHeight = Math.max(expandedHeight + offset, peekHeight);
-      setDragHeight(newHeight);
+      // When expanded, dragging down decreases height
+      newHeight = Math.max(expandedHeight + distance, peekHeight);
     } else {
-      // When peeked, dragging up expands (positive offset)
-      const newHeight = Math.min(peekHeight - offset, expandedHeight);
-      setDragHeight(newHeight);
+      // When peeked, dragging up increases height
+      newHeight = Math.min(peekHeight + distance, expandedHeight);
     }
+    
+    setDragHeight(newHeight);
   };
 
   const handleDragEnd = (e) => {
     if (!isDragging) return;
 
     setIsDragging(false);
-    const currentY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-    const dragDistance = dragStart - currentY; // Positive = up, Negative = down
+    const currentY = e.changedTouches?.[0]?.clientY || e.clientY || 0;
+    const dragDistance = dragStart - currentY;
     
     const threshold = 50; // pixels to trigger state change
+    const midpoint = (peekHeight + expandedHeight) / 2;
 
-    if (isExpanded && dragDistance < -threshold) {
-      // Dragged down enough = collapse
-      setIsExpanded(false);
-      setDragHeight(peekHeight);
-    } else if (!isExpanded && dragDistance > threshold) {
-      // Dragged up enough = expand
+    // Snap based on distance or position
+    if (!isExpanded && (dragDistance > threshold || dragHeight > midpoint)) {
       setIsExpanded(true);
       setDragHeight(expandedHeight);
+    } else if (isExpanded && (dragDistance < -threshold || dragHeight < midpoint)) {
+      setIsExpanded(false);
+      setDragHeight(peekHeight);
     } else {
       // Snap back to current state
       setDragHeight(isExpanded ? expandedHeight : peekHeight);
