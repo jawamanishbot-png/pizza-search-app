@@ -195,8 +195,8 @@ function Map() {
         </GoogleMap>
       </LoadScript>
 
-      {/* List Sheet (from Redo Search) */}
-      {restaurants.length > 0 && showListSheet && (
+      {/* List Sheet (from Redo Search or when Carousel is showing) */}
+      {restaurants.length > 0 && (showListSheet || showCarousel) && (
         <RestaurantListSheet
           restaurants={applyFilters(restaurants, filters)}
           filters={filters}
@@ -208,6 +208,7 @@ function Map() {
             setShowListSheet(false);
           }}
           onClose={() => setShowListSheet(false)}
+          hideFilters={showCarousel}
         />
       )}
 

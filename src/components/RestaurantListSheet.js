@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import '../styles/RestaurantListSheet.css';
 
-function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick, onClose }) {
+function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick, onClose, hideFilters = false }) {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [showPriceMenu, setShowPriceMenu] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -118,7 +118,7 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
         </div>
 
         {/* Filter Bar */}
-        <div className="list-filter-bar">
+        {!hideFilters && <div className="list-filter-bar">
           <div className="filter-dropdown">
             <button
               className={`filter-btn ${filters.sortBy ? 'active' : ''}`}
@@ -171,6 +171,7 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
             📦 Takeout
           </button>
         </div>
+        }
 
         {/* Scrollable list */}
         <div className="restaurants-list">
