@@ -6,10 +6,11 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
   const [showPriceMenu, setShowPriceMenu] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [dragStart, setDragStart] = useState(0);
-  const [dragVelocity, setDragVelocity] = useState(0);
-  const [lastDragTime, setLastDragTime] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
   const sheetRef = useRef(null);
   const contentRef = useRef(null);
+  const peekHeight = 280; // pixels
 
   if (!restaurants || restaurants.length === 0) {
     return null;
@@ -39,42 +40,68 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
   };
 
   const handleDragStart = (e) => {
+    const target = e.target || e.touches?.[0]?.target;
+    // Only start drag from drag handle or header
+    if (!target?.closest('.drag-handle') && !target?.closest('.list-sheet-header')) {
+      return;
+    }
+    
     const currentY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
     setDragStart(currentY);
-    setLastDragTime(Date.now());
-    setDragVelocity(0);
+    setIsDragging(true);
+  };
+
+  const handleDragMove = (e) => {
+    if (!isDragging) return;
+
+    const currentY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+    const offset = currentY - dragStart;
+
+    // Limit offset to prevent dragging past bounds
+    if (isExpanded) {
+      // When expanded, can drag down
+      setDragOffset(Math.max(offset, 0));
+    } else {
+      // When peeked, can drag up
+      setDragOffset(Math.min(offset, 0));
+    }
   };
 
   const handleDragEnd = (e) => {
-    const dragEnd = e.clientY || (e.changedTouches && e.changedTouches[0].clientY) || 0;
-    const dragDistance = dragStart - dragEnd;
-    const dragTime = Date.now() - lastDragTime;
+    if (!isDragging) return;
+
+    setIsDragging(false);
+    const currentY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+    const dragDistance = currentY - dragStart;
     
-    // Calculate velocity (pixels per ms)
-    const velocity = dragTime > 0 ? dragDistance / dragTime : 0;
-    setDragVelocity(velocity);
+    const threshold = 50; // pixels to trigger state change
 
-    // Threshold: 30px distance OR velocity > 0.5 px/ms
-    const threshold = 30;
-    const velocityThreshold = 0.5;
-
-    // Drag up more than threshold OR high upward velocity = expand
-    if (dragDistance > threshold || velocity > velocityThreshold) {
+    if (isExpanded && dragDistance > threshold) {
+      // Dragged down enough = collapse
+      setIsExpanded(false);
+    } else if (!isExpanded && dragDistance < -threshold) {
+      // Dragged up enough = expand
       setIsExpanded(true);
     }
-    // Drag down more than threshold OR high downward velocity = collapse
-    else if (dragDistance < -threshold || velocity < -velocityThreshold) {
-      setIsExpanded(false);
-    }
+
+    // Reset drag offset
+    setDragOffset(0);
   };
 
   return (
     <div 
       ref={sheetRef}
-      className={`restaurant-list-sheet ${isExpanded ? 'expanded' : 'peek'}`}
+      className={`restaurant-list-sheet ${isExpanded ? 'expanded' : 'peek'} ${isDragging ? 'dragging' : ''}`}
+      style={{
+        transform: isDragging ? `translateY(${dragOffset}px)` : 'translateY(0)',
+        transition: isDragging ? 'none' : 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      }}
       onMouseDown={handleDragStart}
+      onMouseMove={handleDragMove}
       onMouseUp={handleDragEnd}
+      onMouseLeave={handleDragEnd}
       onTouchStart={handleDragStart}
+      onTouchMove={handleDragMove}
       onTouchEnd={handleDragEnd}
     >
       {isExpanded && <div className="sheet-overlay" onClick={() => setIsExpanded(false)} />}
