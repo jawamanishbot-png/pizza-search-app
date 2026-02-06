@@ -28,7 +28,7 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  z-index: 299;
+  z-index: 298;
 }
 
 .detail-sheet-content {
@@ -38,7 +38,7 @@
   max-height: 100vh;
   overflow-y: auto;
   border-radius: 16px 16px 0 0;
-  z-index: 101;
+  z-index: 299;
 }
 
 /* Hero Section */

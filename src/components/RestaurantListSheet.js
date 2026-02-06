@@ -108,7 +108,7 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
       onTouchMove={handleDragMove}
       onTouchEnd={handleDragEnd}
     >
-      {isExpanded && <div className="sheet-overlay" onClick={() => {
+      {isExpanded && !hideFilters && <div className="sheet-overlay" onClick={() => {
         setIsExpanded(false);
         setDragHeight(peekHeight);
       }} />}
