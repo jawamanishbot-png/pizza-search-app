@@ -19,7 +19,6 @@ function Map() {
   const [error, setError] = useState(null);
   const [selectedRestaurant, setSelectedRestaurant] = useState(null);
   const [showCarousel, setShowCarousel] = useState(false);
-  const [showListSheet, setShowListSheet] = useState(false);
   const [focusedRestaurant, setFocusedRestaurant] = useState(null);
   const [filters, setFilters] = useState({
     sortBy: null,
@@ -35,7 +34,6 @@ function Map() {
       setError(null);
       const results = await searchRestaurants(lat, lng, searchQuery);
       setRestaurants(results);
-      setShowListSheet(true);
       setShowCarousel(false);
       setSelectedRestaurant(null);
     } catch (err) {
@@ -208,8 +206,8 @@ function Map() {
         </GoogleMap>
       </LoadScript>
 
-      {/* List Sheet (from Redo Search or when Carousel is showing) */}
-      {restaurants.length > 0 && (showListSheet || showCarousel) && (
+      {/* List Sheet (always visible in peek mode when restaurants exist) */}
+      {restaurants.length > 0 && (
         <RestaurantListSheet
           restaurants={applyFilters(restaurants, filters)}
           filters={filters}
@@ -218,9 +216,8 @@ function Map() {
             setSelectedRestaurant(r);
             setFocusedRestaurant(r);
             setShowCarousel(true);
-            setShowListSheet(false);
           }}
-          onClose={() => setShowListSheet(false)}
+          onClose={() => {}}
           hideFilters={showCarousel}
         />
       )}
@@ -230,7 +227,9 @@ function Map() {
         <RestaurantCardCarousel
           restaurants={applyFilters(restaurants, filters)}
           onCardClick={setSelectedRestaurant}
-          onDismiss={() => setShowCarousel(false)}
+          onDismiss={() => {
+            setShowCarousel(false);
+          }}
           onFocusedCardChange={setFocusedRestaurant}
         />
       )}
