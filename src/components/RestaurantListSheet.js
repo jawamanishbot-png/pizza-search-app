@@ -49,6 +49,11 @@ function RestaurantListSheet({ restaurants, filters, onFilterChange, onCardClick
   const handleDragMove = (e) => {
     if (!isDragging) return;
 
+    // Prevent default pull-to-refresh behavior
+    if (e.touches) {
+      e.preventDefault();
+    }
+
     const currentY = e.clientY || (e.touches?.[0]?.clientY) || 0;
     const distance = dragStart - currentY; // Positive = up, Negative = down
 

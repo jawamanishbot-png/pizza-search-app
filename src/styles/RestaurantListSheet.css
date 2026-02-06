@@ -5,10 +5,11 @@
   right: 0;
   z-index: 200;
   width: 100%;
-  touch-action: none;
+  touch-action: pan-x;
   user-select: none;
   will-change: height;
   overflow: hidden;
+  overscroll-behavior: contain;
 }
 
 .sheet-overlay {
